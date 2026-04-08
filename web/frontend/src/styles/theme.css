@@ -1,0 +1,168 @@
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-size: 16px;
+
+  /* Base (HydrIA: fondo suave tipo “ice”) */
+  --background: #eef5ff;
+  --foreground: #0f172a;
+
+  /* Superficies */
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+
+  /* Marca (azul HydrIA) */
+  --primary: #0a84c6;
+  --primary-foreground: #ffffff;
+  --ring: rgba(10, 132, 198, 0.35);
+
+  /* Neutros / UI */
+  --secondary: #eef2f7;
+  --secondary-foreground: #0f172a;
+
+  --muted: #e9f1ff;
+  --muted-foreground: #64748b;
+
+  --accent: #dbeeff;
+  --accent-foreground: #0f172a;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  /* Bordes/inputs */
+  --border: rgba(15, 23, 42, 0.10);
+  --input: rgba(255, 255, 255, 0.95);
+  --input-background: #ffffff;
+  --switch-background: rgba(10, 132, 198, 0.22);
+
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+
+  /* Charts */
+  --chart-1: #0a84c6;
+  --chart-2: #06b6d4;
+  --chart-3: #10b981;
+  --chart-4: #f59e0b;
+  --chart-5: #ef4444;
+
+  --radius: 1.1rem;
+
+  /* Sidebar (más “limpia” como en las capturas) */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #0a84c6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e6f3ff;
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: rgba(15, 23, 42, 0.10);
+  --sidebar-ring: rgba(10, 132, 198, 0.35);
+
+  /* HydrIA states */
+  --status-safe: #16a34a;
+  --status-safe-foreground: #ffffff;
+  --status-safe-light: #dcfce7;
+
+  --status-warning: #f59e0b;
+  --status-warning-foreground: #ffffff;
+  --status-warning-light: #fef3c7;
+
+  --status-danger: #ef4444;
+  --status-danger-foreground: #ffffff;
+  --status-danger-light: #fee2e2;
+
+  --status-offline: #6b7280;
+  --status-offline-foreground: #ffffff;
+  --status-offline-light: #e5e7eb;
+
+  /* Alias para tu código (por si usas --status-warn) */
+  --status-warn: var(--status-warning);
+}
+
+.dark {
+  --background: #071023;
+  --foreground: #eaf0ff;
+
+  --card: #0b1730;
+  --card-foreground: #eaf0ff;
+
+  --popover: #0b1730;
+  --popover-foreground: #eaf0ff;
+
+  --primary: #60a5fa;
+  --primary-foreground: #071023;
+
+  --secondary: #0f2244;
+  --secondary-foreground: #eaf0ff;
+
+  --muted: #0f2244;
+  --muted-foreground: #a7b2c7;
+
+  --accent: rgba(96, 165, 250, 0.14);
+  --accent-foreground: #eaf0ff;
+
+  --border: rgba(96, 165, 250, 0.18);
+  --input: rgba(255, 255, 255, 0.06);
+  --ring: rgba(96, 165, 250, 0.45);
+
+  --sidebar: #0b1730;
+  --sidebar-foreground: #eaf0ff;
+  --sidebar-primary: #60a5fa;
+  --sidebar-primary-foreground: #071023;
+  --sidebar-accent: rgba(96, 165, 250, 0.14);
+  --sidebar-accent-foreground: #eaf0ff;
+  --sidebar-border: rgba(96, 165, 250, 0.16);
+  --sidebar-ring: rgba(96, 165, 250, 0.45);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+
+  --color-ring: var(--ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 3px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 6px);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
