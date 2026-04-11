@@ -2,7 +2,7 @@ import { MapContainer } from "react-leaflet/MapContainer";
 import { TileLayer } from "react-leaflet/TileLayer";
 import { CircleMarker } from "react-leaflet/CircleMarker";
 import { Popup } from "react-leaflet/Popup";
-import { stations } from "../mock";
+import { useTelemetry } from "../context/TelemetryContext";
 
 function colorFor(risk: string) {
   if (risk === "OK") return "var(--status-safe)";
@@ -11,6 +11,7 @@ function colorFor(risk: string) {
 }
 
 export default function NationalMap() {
+  const { stations } = useTelemetry();
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-card">
       <div className="border-b border-border p-4">
@@ -25,7 +26,7 @@ export default function NationalMap() {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          {stations.map((s) => (
+          {stations.filter((s) => s.lat !== undefined && s.lng !== undefined).map((s) => (
             <CircleMarker
               key={s.id}
               center={[s.lat, s.lng] as [number, number]}
@@ -39,9 +40,10 @@ export default function NationalMap() {
             >
               <Popup>
                 <div className="text-sm">
-                  <div className="font-medium">{s.name}</div>
+                  <div className="font-medium">{s.name || s.id}</div>
                   <div className="text-xs opacity-70">
-                    {s.province} · {s.risk} · batería {s.battery}%
+                    {s.province || "Sin provincia"} · {s.risk}
+                    {s.battery !== undefined && ` · batería ${s.battery}%`}
                   </div>
                 </div>
               </Popup>

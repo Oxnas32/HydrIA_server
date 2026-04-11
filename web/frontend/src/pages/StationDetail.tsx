@@ -1,9 +1,10 @@
 import { Link, useParams } from "react-router-dom";
-import { stations } from "../mock";
+import { useTelemetry } from "../context/TelemetryContext";
 
 export default function StationDetail() {
+  const { stations } = useTelemetry();
   const { id } = useParams();
-  const s = stations.find((x) => x.id === id);
+  const s = stations.find((x: any) => x.id === id);
 
   if (!s) {
     return (
@@ -40,8 +41,8 @@ export default function StationDetail() {
       {/* KPIs */}
       <div className="grid gap-4 md:grid-cols-3">
         {[
-          { title: "Nivel de agua", value: "—", sub: "cm" },
-          { title: "Lluvia", value: "—", sub: "mm" },
+          { title: "Nivel de agua", value: s.waterLevelCm ?? "—", sub: "cm" },
+          { title: "Lluvia", value: s.rainMm ?? "—", sub: "mm" },
           { title: "Turbidez", value: "—", sub: "NTU (opcional)" },
         ].map((kpi) => (
           <div key={kpi.title} className="rounded-xl border border-border bg-card p-4">

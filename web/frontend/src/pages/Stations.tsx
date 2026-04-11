@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { stations } from "../mock";
+import { useTelemetry } from "../context/TelemetryContext";
 
 export default function Stations() {
+  const { stations } = useTelemetry();
   return (
     <>
       <div className="mb-6">

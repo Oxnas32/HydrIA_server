@@ -1,5 +1,5 @@
 import NationalMap from "../components/NationalMap";
-import { stations } from "../mock";
+import { useTelemetry } from "../context/TelemetryContext";
 import { Radio, Bell, AlertTriangle, Clock, Battery, Activity } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -28,6 +28,7 @@ function batteryTextClass(battery: number) {
 }
 
 export default function Dashboard() {
+    const { stations } = useTelemetry();
     const navigate = useNavigate();
     const activeCount = stations.length;
     const alertsToday = stations.filter((s) => s.risk === "ALERT").length;
