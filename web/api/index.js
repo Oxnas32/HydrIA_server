@@ -83,6 +83,48 @@ app.get("/stations", (req, res) => {
   });
 });
 
+app.get("/stations/:id/history", (req, res) => {
+  const stationId = req.params.id;
+
+  const q = flux`from(bucket: "${INFLUX_BUCKET}")
+    |> range(start: -24h)
+    |> filter(fn: (r) => r._measurement == "telemetry")
+    |> filter(fn: (r) => r.nodeId == "${stationId}")`;
+
+  const rows = [];
+
+  queryApi.queryRows(q, {
+    next: (row, tableMeta) => rows.push(tableMeta.toObject(row)),
+    error: (err) => res.status(500).json({ ok: false, error: String(err) }),
+    complete: () => {
+      const historyMap = {};
+
+      for (const r of rows) {
+        const time = r._time;
+
+        if (!historyMap[time]) {
+          historyMap[time] = {
+            time,
+            waterLevelCm: null,
+            rainMm: null,
+            batteryV: null,
+          };
+        }
+
+        if (r._field === "waterLevelCm") historyMap[time].waterLevelCm = r._value;
+        if (r._field === "rainMm") historyMap[time].rainMm = r._value;
+        if (r._field === "batteryV") historyMap[time].batteryV = r._value;
+      }
+
+      const result = Object.values(historyMap).sort(
+        (a, b) => new Date(a.time) - new Date(b.time)
+      );
+
+      res.json({ ok: true, data: result });
+    },
+  });
+});
+
 app.get("/latest", (req, res) => {
   const reqNodeId = req.query.nodeId || "A1";
   const q = flux`from(bucket: "${INFLUX_BUCKET}")

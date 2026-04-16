@@ -1,51 +1,114 @@
 import { Link } from "react-router-dom";
 import { useTelemetry } from "../context/TelemetryContext";
+import { useViewMode } from "../context/ViewModeContext";
+
+function getStatus(level?: number) {
+  if (level == null) return "Sin datos";
+  if (level >= 120) return "Alerta";
+  if (level >= 80) return "Vigilancia";
+  return "Normal";
+}
+
+function getStatusColor(status: string) {
+  if (status === "Normal") return "bg-emerald-600 text-white";
+  if (status === "Vigilancia") return "bg-orange-500 text-white";
+  if (status === "Alerta") return "bg-red-600 text-white";
+  return "bg-slate-700 text-white";
+}
+
+const simulatedStations = [
+  { id: "sim-1", name: "Madrid", location: "Madrid", waterLevelCm: 110, rainMm: 18, batteryV: 3.8 },
+  { id: "sim-2", name: "Barcelona", location: "Barcelona", waterLevelCm: 135, rainMm: 24, batteryV: 3.7 },
+  { id: "sim-3", name: "Valencia", location: "Valencia", waterLevelCm: 95, rainMm: 14, batteryV: 3.9 },
+  { id: "sim-4", name: "Sevilla", location: "Sevilla", waterLevelCm: 82, rainMm: 11, batteryV: 3.8 },
+  { id: "sim-5", name: "Bilbao", location: "Bilbao", waterLevelCm: 145, rainMm: 20, batteryV: 3.7 },
+  { id: "sim-6", name: "Zaragoza", location: "Zaragoza", waterLevelCm: 76, rainMm: 8, batteryV: 3.9 },
+];
 
 export default function Stations() {
   const { stations } = useTelemetry();
+  const { mode } = useViewMode();
+
+  const stationsToShow = mode === "real" ? stations : simulatedStations;
+
   return (
-    <>
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold">Estaciones</h1>
-        <p className="text-sm text-muted-foreground">Listado nacional (mock)</p>
-      </div>
+    <div className="space-y-8">
+      <section className="rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-cyan-900 p-8">
+        <h1 className="text-4xl font-bold">
+          {mode === "real" ? "Estaciones" : "Estaciones simuladas"}
+        </h1>
+        <p className="mt-3 max-w-3xl text-slate-300">
+          {mode === "real"
+            ? "Consulta pública de las estaciones disponibles y su estado actual."
+            : "Vista simulada de estaciones distribuidas en distintos puntos de España."}
+        </p>
+      </section>
 
-      <div className="rounded-xl border border-border bg-card">
-        <div className="border-b border-border p-4">
-          <div className="text-sm font-medium">Todas las estaciones</div>
-          <div className="text-xs text-muted-foreground">Haz click para ver detalle</div>
+      {stationsToShow.length === 0 ? (
+        <div className="rounded-3xl bg-white/5 p-6 text-slate-300">
+          No hay estaciones disponibles en este momento.
         </div>
+      ) : (
+        <section className="grid gap-5 md:grid-cols-2">
+          {stationsToShow.map((station: any, index: number) => {
+            const waterLevel = station?.waterLevelCm;
+            const rain = station?.rainMm;
+            const battery = station?.batteryV;
+            const status = getStatus(waterLevel);
 
-        <div className="p-4">
-          <table className="w-full text-sm">
-            <thead className="text-left text-muted-foreground">
-              <tr className="border-b border-border">
-                <th className="py-2">Estación</th>
-                <th className="py-2">Provincia</th>
-                <th className="py-2">Estado</th>
-                <th className="py-2">Batería</th>
-                <th className="py-2">Última actualización</th>
-              </tr>
-            </thead>
-            <tbody>
-              {stations.map((s) => (
-                <tr key={s.id} className="border-b border-border/60 hover:bg-accent/40">
-                  <td className="py-3">
-                    <Link className="font-medium underline-offset-4 hover:underline" to={`/stations/${s.id}`}>
-                      {s.name}
-                    </Link>
-                    <div className="text-xs text-muted-foreground">ID: {s.id}</div>
-                  </td>
-                  <td className="py-3">{s.province}</td>
-                  <td className="py-3">{s.risk}</td>
-                  <td className="py-3">{s.battery}%</td>
-                  <td className="py-3">{s.updated}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </>
+            return (
+              <Link
+                key={station?.id ?? index}
+                to={`/stations/${station?.id ?? index}`}
+                className="rounded-3xl bg-white/5 p-5 hover:bg-white/10"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-sm text-slate-400">Estación</p>
+                    <h2 className="text-2xl font-semibold">
+                      {station?.name ?? `Estación ${index + 1}`}
+                    </h2>
+                    <p className="mt-2 text-sm text-slate-300">
+                      {station?.location ?? station?.province ?? "Sin ubicación"}
+                    </p>
+                  </div>
+
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(
+                      status
+                    )}`}
+                  >
+                    {status}
+                  </span>
+                </div>
+
+                <div className="mt-5 grid grid-cols-3 gap-3">
+                  <div className="rounded-2xl bg-slate-900 p-4">
+                    <div className="text-xs text-slate-400">Nivel</div>
+                    <div className="mt-2 text-xl font-semibold">
+                      {waterLevel != null ? `${waterLevel} cm` : "—"}
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl bg-slate-900 p-4">
+                    <div className="text-xs text-slate-400">Lluvia</div>
+                    <div className="mt-2 text-xl font-semibold">
+                      {rain != null ? `${rain} mm` : "—"}
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl bg-slate-900 p-4">
+                    <div className="text-xs text-slate-400">Batería</div>
+                    <div className="mt-2 text-xl font-semibold">
+                      {battery != null ? `${battery} V` : "—"}
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+        </section>
+      )}
+    </div>
   );
 }

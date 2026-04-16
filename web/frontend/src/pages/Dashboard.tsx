@@ -1,166 +1,330 @@
+import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
 import NationalMap from "../components/NationalMap";
 import { useTelemetry } from "../context/TelemetryContext";
-import { Radio, Bell, AlertTriangle, Clock, Battery, Activity } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useViewMode } from "../context/ViewModeContext";
 
-
-function riskLabel(risk: string) {
-  if (risk === "OK") return "OK";
-  if (risk === "WARN") return "Aviso";
-  return "Alerta";
+function getStatus(level?: number) {
+  if (level == null) return "Sin datos";
+  if (level >= 120) return "Alerta";
+  if (level >= 80) return "Vigilancia";
+  return "Normal";
 }
 
-function riskChipClasses(risk: string) {
-  return [
-    "inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-medium",
-    risk === "OK" && "bg-[var(--status-safe)]/15 text-[var(--status-safe)]",
-    risk === "WARN" && "bg-[var(--status-warn)]/15 text-[var(--status-warn)]",
-    risk === "ALERT" && "bg-[var(--status-danger)]/15 text-[var(--status-danger)]",
-  ]
-    .filter(Boolean)
+function getStatusColor(status: string) {
+  if (status === "Normal") return "bg-emerald-600 text-white";
+  if (status === "Vigilancia") return "bg-orange-500 text-white";
+  if (status === "Alerta") return "bg-red-600 text-white";
+  return "bg-slate-700 text-white";
+}
+
+function buildDemoSeries(value: number, type: "level" | "rain") {
+  const base = value || 0;
+
+  if (type === "level") {
+    return [Math.max(base - 18, 5), Math.max(base - 12, 5), Math.max(base - 10, 5), Math.max(base - 4, 5), base, Math.max(base - 6, 5), Math.max(base - 2, 5), base + 5];
+  }
+
+  return [Math.max(base - 6, 1), Math.max(base - 4, 1), Math.max(base - 8, 1), Math.max(base - 3, 1), base, Math.max(base - 5, 1), Math.max(base - 2, 1), base + 2];
+}
+
+function getPolylinePoints(data: number[], width: number, height: number) {
+  const max = Math.max(...data, 1);
+  const min = Math.min(...data, 0);
+  const range = Math.max(max - min, 1);
+
+  return data
+    .map((value, index) => {
+      const x = (index / (data.length - 1)) * width;
+      const y = height - ((value - min) / range) * height;
+      return `${x},${y}`;
+    })
     .join(" ");
 }
 
-function batteryTextClass(battery: number) {
-  if (battery <= 20) return "text-[var(--status-danger)]";
-  if (battery <= 50) return "text-[var(--status-warn)]";
-  return "text-[var(--status-safe)]";
-}
-
 export default function Dashboard() {
-    const { stations } = useTelemetry();
-    const navigate = useNavigate();
-    const activeCount = stations.length;
-    const alertsToday = stations.filter((s) => s.risk === "ALERT").length;
-    const riskZones = stations.filter((s) => s.risk !== "OK").length;
-    const lastUpdated = stations[0]?.updated ?? "—";
+  const { stations, alerts } = useTelemetry();
+  const coveredAreas = [...new Set(stations.map((station: any) => station?.province).filter(Boolean))];
+  const { mode, setMode } = useViewMode();
+
+  const shownStations = mode === "real"
+    ? stations.slice(0, 2)
+    : [
+        { id: "sim-1", name: "Madrid", location: "Madrid", waterLevelCm: 110, rainMm: 18, batteryV: 3.8 },
+        { id: "sim-2", name: "Barcelona", location: "Barcelona", waterLevelCm: 135, rainMm: 24, batteryV: 3.7 },
+      ];
+
+  const allStationsForSelection = mode === "real"
+    ? stations
+    : [
+        { id: "sim-1", name: "Madrid", location: "Madrid", lat: 40.4168, lng: -3.7038, waterLevelCm: 110, rainMm: 18, batteryV: 3.8 },
+        { id: "sim-2", name: "Barcelona", location: "Barcelona", lat: 41.3874, lng: 2.1686, waterLevelCm: 135, rainMm: 24, batteryV: 3.7 },
+        { id: "sim-3", name: "Valencia", location: "Valencia", lat: 39.4699, lng: -0.3763, waterLevelCm: 95, rainMm: 14, batteryV: 3.9 },
+        { id: "sim-4", name: "Sevilla", location: "Sevilla", lat: 37.3891, lng: -5.9845, waterLevelCm: 82, rainMm: 11, batteryV: 3.8 },
+      ];
+
+  const [selectedStation, setSelectedStation] = useState<any>(null);
+
+  useEffect(() => {
+    if (allStationsForSelection.length > 0) {
+      setSelectedStation(allStationsForSelection[0]);
+    } else {
+      setSelectedStation(null);
+    }
+  }, [mode, allStationsForSelection]);
+
+  const selectedWaterLevel = selectedStation?.waterLevelCm ?? 0;
+  const selectedRain = selectedStation?.rainMm ?? 0;
+  const selectedBattery = selectedStation?.batteryV ?? 0;
+  const selectedStatus = getStatus(selectedWaterLevel);
+
+  const levelSeries = useMemo(() => buildDemoSeries(selectedWaterLevel, "level"), [selectedWaterLevel]);
+  const rainSeries = useMemo(() => buildDemoSeries(selectedRain, "rain"), [selectedRain]);
+
+  const levelPoints = getPolylinePoints(levelSeries, 520, 150);
+  const rainPoints = getPolylinePoints(rainSeries, 520, 150);
 
   return (
-    <>
-      {/* Topbar */}
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold">Dashboard nacional</h1>
-          <p className="text-sm text-muted-foreground">Estado del despliegue y alertas automáticas</p>
-        </div>
+    <div className="space-y-8">
+      <section
+        className={`rounded-3xl p-8 ${
+          mode === "real"
+            ? "bg-gradient-to-br from-slate-900 via-slate-800 to-cyan-900"
+            : "bg-gradient-to-br from-slate-900 via-indigo-900 to-blue-900"
+        }`}
+      >
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-4xl font-bold">
+              {mode === "real"
+                ? "Seguimiento en tiempo real de las estaciones instaladas"
+                : "Simulación de despliegue nacional"}
+            </h1>
 
-        <div className="flex items-center gap-3">
-          <input
-            className="h-10 w-72 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
-            placeholder="Buscar estación, ciudad…"
-          />
-          <div className="hidden text-sm text-muted-foreground md:block">Última sync: {lastUpdated}</div>
-        </div>
-      </div>
-
-      {/* Hero */}
-        <div className="mb-10 rounded-2xl bg-card p-10 shadow-sm border border-border/60">
-            <div className="mx-auto max-w-4xl text-center">
-                <div className="mx-auto inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-sm text-foreground">
-                <Activity className="h-4 w-4 text-[var(--status-safe)]" />
-                Sistema nacional de alertas en tiempo real
-                </div>
-
-                <h2 className="mt-6 text-5xl font-semibold tracking-tight">
-                Centro de control HydrIA
-                </h2>
-
-                <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-                Monitorización nacional de ríos y detección temprana de riesgos de inundación.
-                </p>
-
-                <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                    <button
-                        onClick={() => navigate("/stations")} 
-                        className="h-11 rounded-xl bg-primary px-6 text-sm font-medium text-primary-foreground shadow-sm">
-                        Ver estaciones
-                    </button>
-                    <button
-                        onClick={() => navigate("/alerts")} 
-                        className="h-11 rounded-xl border border-border bg-background px-6 text-sm font-medium">
-                        Ver alertas
-                    </button>
-                </div>
-            </div>
-        </div>
-
-      {/* KPI row */}
-      <div className="grid gap-4 md:grid-cols-4">
-        {[
-          { title: "Estaciones activas", value: String(activeCount), sub: "Mock", Icon: Radio },
-          { title: "Alertas hoy", value: String(alertsToday), sub: "Auto", Icon: Bell },
-          { title: "Zonas en riesgo", value: String(riskZones), sub: "Aviso / Alerta", Icon: AlertTriangle },
-          { title: "Última lectura", value: lastUpdated, sub: "Timestamp", Icon: Clock },
-        ].map(({ title, value, sub, Icon }) => (
-          <div
-            key={title}
-            className="rounded-2xl border border-border/60 bg-card p-4 shadow-sm transition hover:-translate-y-[1px] hover:shadow-md"
-          >
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-muted-foreground">{title}</div>
-              <Icon className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <div className="mt-2 text-3xl font-semibold">{value}</div>
-            <div className="mt-1 text-xs text-muted-foreground">{sub}</div>
+            <p className="mt-3 max-w-3xl text-slate-200">
+              {mode === "real"
+                ? "Consulta pública del estado actual de las estaciones reales del proyecto."
+                : "Vista simulada de cómo podría escalarse la plataforma a nivel nacional."}
+            </p>
           </div>
-        ))}
+
+          <div className="flex flex-wrap gap-3">
+            <Link
+              to="/stations"
+              className="rounded-full bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-500"
+            >
+              Ver estaciones
+            </Link>
+            <Link
+              to="/alerts"
+              className="rounded-full bg-red-600 px-4 py-2 font-medium text-white hover:bg-red-500"
+            >
+              Ver alertas
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 pt-4 lg:grid-cols-4">
+            <div className="rounded-2xl bg-white/10 p-4">
+              <div className="text-sm text-slate-300">
+                {mode === "real" ? "Estaciones activas" : "Estaciones simuladas"}
+              </div>
+              <div className="mt-2 text-2xl font-semibold">
+                {mode === "real" ? stations.length : 120}
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-white/10 p-4">
+              <div className="text-sm text-slate-300">
+                {mode === "real" ? "Alertas activas" : "Alertas estimadas"}
+              </div>
+              <div className="mt-2 text-2xl font-semibold">
+                {mode === "real" ? alerts.length : 9}
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-white/10 p-4">
+              <div className="text-sm text-slate-300">Áreas cubiertas</div>
+              <div className="mt-2 text-sm font-medium text-white">
+                {mode === "real" ? (coveredAreas.length > 0 ? coveredAreas.join(", ") : "Sin datos") : "España"}
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-white/10 p-4">
+              <div className="text-sm text-slate-300">Acceso</div>
+              <div className="mt-2 text-2xl font-semibold">Público</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="flex justify-center">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <button
+            onClick={() => setMode("real")}
+            className={`rounded-xl px-4 py-3 text-sm font-semibold transition ${
+              mode === "real"
+                ? "bg-cyan-500 text-white"
+                : "bg-cyan-900/40 text-cyan-200 hover:bg-cyan-800/60"
+            }`}
+          >
+            Vista real
+          </button>
+
+          <button
+            onClick={() => setMode("simulation")}
+            className={`rounded-xl px-4 py-3 text-sm font-semibold transition ${
+              mode === "simulation"
+                ? "bg-orange-400 text-slate-950"
+                : "bg-orange-600 text-white hover:bg-orange-500"
+            }`}
+          >
+            Simulación nacional
+          </button>
+        </div>
       </div>
 
-      {/* Map */}
-      <div className="mt-6">
-        <NationalMap />
-      </div>
-
-      {/* Table */}
-      <div className="mt-6 rounded-2xl border border-border/60 bg-card shadow-sm">
-        <div className="border-b border-border/60 p-4">
-          <div className="text-sm font-medium">Estaciones (vista rápida)</div>
-          <div className="text-xs text-muted-foreground">Listado con estado y última actualización</div>
+      <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="rounded-3xl bg-white/5 p-5">
+          <h2 className="mb-4 text-2xl font-semibold">
+            {mode === "real" ? "Mapa de estaciones" : "Mapa de despliegue"}
+          </h2>
+          <NationalMap onSelectStation={setSelectedStation} />
         </div>
 
-        <div className="p-4">
-          <table className="w-full text-sm">
-            <thead className="text-left text-muted-foreground">
-              <tr className="border-b border-border/60">
-                <th className="py-2">Estación</th>
-                <th className="py-2">Provincia</th>
-                <th className="py-2">Estado</th>
-                <th className="py-2">Batería</th>
-                <th className="py-2">Última actualización</th>
-              </tr>
-            </thead>
+        <div className="space-y-6">
+          <div className="rounded-3xl bg-white/5 p-5">
+            <h2 className="mb-4 text-2xl font-semibold">
+              {selectedStation ? selectedStation.name : "Estación seleccionada"}
+            </h2>
 
-            <tbody>
-              {stations.map((s) => (
-                <tr key={s.id} className="border-b border-border/40 transition hover:bg-accent/40">
-                  <td className="py-3">
-                    <div className="font-medium">{s.name}</div>
-                    <div className="text-xs text-muted-foreground font-mono">ID: {s.id}</div>
-                  </td>
+            {selectedStation ? (
+              <div className="space-y-5">
+                <div>
+                  <p className="text-sm text-slate-400">Ubicación</p>
+                  <p className="mt-1 text-lg font-medium text-white">
+                    {selectedStation.location ?? selectedStation.province ?? "Sin ubicación"}
+                  </p>
+                </div>
 
-                  <td className="py-3">{s.province}</td>
-
-                  <td className="py-3">
-                    <span className={riskChipClasses(s.risk)}>
-                      <span className="text-[10px] leading-none">●</span>
-                      {riskLabel(s.risk)}
-                    </span>
-                  </td>
-
-                  <td className="py-3">
-                    <div className="inline-flex items-center gap-2">
-                      <Battery className={`h-4 w-4 ${batteryTextClass(s.battery)}`} />
-                      <span className={batteryTextClass(s.battery)}>{s.battery}%</span>
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                  <div className="rounded-2xl bg-slate-900 p-4">
+                    <div className="text-xs text-slate-400">Nivel de agua</div>
+                    <div className="mt-2 text-2xl font-semibold text-white">
+                      {selectedWaterLevel} cm
                     </div>
-                  </td>
+                  </div>
 
-                  <td className="py-3">{s.updated}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  <div className="rounded-2xl bg-slate-900 p-4">
+                    <div className="text-xs text-slate-400">Precipitación</div>
+                    <div className="mt-2 text-2xl font-semibold text-white">
+                      {selectedRain} mm
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl bg-slate-900 p-4">
+                    <div className="text-xs text-slate-400">Batería</div>
+                    <div className="mt-2 text-2xl font-semibold text-white">
+                      {selectedBattery} V
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl bg-slate-900 p-4">
+                    <div className="text-xs text-slate-400">Estado</div>
+                    <div className="mt-3">
+                      <span
+                        className={`inline-flex rounded-full px-4 py-2 text-sm font-semibold ${getStatusColor(
+                          selectedStatus
+                        )}`}
+                      >
+                        {selectedStatus}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className="text-slate-300">
+                Selecciona una estación en el mapa para ver sus indicadores.
+              </p>
+            )}
+          </div>
+
+          <div className="rounded-3xl bg-white/5 p-5">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-2xl font-semibold">Evolución últimas 24 h</h2>
+              <span className="text-xs text-slate-400">preparado para datos periódicos</span>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-end gap-4 text-sm text-slate-300">
+                <div className="flex items-center gap-2">
+                  <span className="inline-block h-2.5 w-2.5 rounded-full bg-cyan-400" />
+                  Nivel
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="inline-block h-2.5 w-2.5 rounded-full bg-blue-400" />
+                  Lluvia
+                </div>
+              </div>
+
+              <div className="rounded-2xl bg-slate-900 p-4">
+                <svg viewBox="0 0 520 180" className="h-56 w-full">
+                  <line x1="0" y1="150" x2="520" y2="150" stroke="#334155" strokeWidth="1" />
+                  <line x1="0" y1="110" x2="520" y2="110" stroke="#334155" strokeWidth="1" />
+                  <line x1="0" y1="70" x2="520" y2="70" stroke="#334155" strokeWidth="1" />
+                  <line x1="0" y1="30" x2="520" y2="30" stroke="#334155" strokeWidth="1" />
+
+                  <polyline fill="none" stroke="#22d3ee" strokeWidth="4" points={levelPoints} />
+                  <polyline fill="none" stroke="#60a5fa" strokeWidth="4" points={rainPoints} />
+
+                  <text x="0" y="172" fill="#94a3b8" fontSize="12">00:00</text>
+                  <text x="70" y="172" fill="#94a3b8" fontSize="12">04:00</text>
+                  <text x="140" y="172" fill="#94a3b8" fontSize="12">08:00</text>
+                  <text x="210" y="172" fill="#94a3b8" fontSize="12">12:00</text>
+                  <text x="280" y="172" fill="#94a3b8" fontSize="12">16:00</text>
+                  <text x="350" y="172" fill="#94a3b8" fontSize="12">20:00</text>
+                  <text x="450" y="172" fill="#94a3b8" fontSize="12">24:00</text>
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </>
+      </section>
+
+      <section className="rounded-3xl bg-white/5 p-6">
+        <h2 className="text-2xl font-semibold">
+          {mode === "real" ? "Modo real" : "Modo despliegue nacional"}
+        </h2>
+
+        <div className="mt-4 grid gap-4 md:grid-cols-3">
+          <div className="rounded-2xl bg-slate-900 p-4">
+            <div className="text-base font-semibold">Qué muestra</div>
+            <p className="mt-2 text-sm text-slate-300">
+              {mode === "real"
+                ? "Se muestran únicamente las estaciones reales que están dadas de alta en el sistema."
+                : "Se muestra una representación simulada de cómo podría verse la plataforma con un despliegue extendido por España."}
+            </p>
+          </div>
+
+          <div className="rounded-2xl bg-slate-900 p-4">
+            <div className="text-base font-semibold">Objetivo</div>
+            <p className="mt-2 text-sm text-slate-300">
+              {mode === "real"
+                ? "Permitir una consulta pública del estado actual del sistema realmente instalado."
+                : "Enseñar de forma visual la escalabilidad del proyecto y su posible extensión a nivel nacional."}
+            </p>
+          </div>
+
+          <div className="rounded-2xl bg-slate-900 p-4">
+            <div className="text-base font-semibold">Interpretación</div>
+            <p className="mt-2 text-sm text-slate-300">
+              {mode === "real"
+                ? "Los datos, estaciones y alertas proceden del backend y representan el estado operativo actual."
+                : "Los puntos, estaciones y alertas se generan de forma simulada para ilustrar un escenario futuro de despliegue."}
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }

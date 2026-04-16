@@ -1,168 +1,258 @@
-@custom-variant dark (&:is(.dark *));
-
 :root {
-  --font-size: 16px;
+  --bg: #020617;
+  --bg-soft: #0f172a;
+  --panel: rgba(15, 23, 42, 0.72);
+  --panel-strong: rgba(15, 23, 42, 0.9);
+  --panel-border: rgba(255, 255, 255, 0.08);
 
-  /* Base (HydrIA: fondo suave tipo “ice”) */
-  --background: #eef5ff;
-  --foreground: #0f172a;
+  --text: #e2e8f0;
+  --text-soft: #94a3b8;
+  --text-muted: #64748b;
+  --title: #f8fafc;
 
-  /* Superficies */
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --popover: #ffffff;
-  --popover-foreground: #0f172a;
+  --primary: #22d3ee;
+  --primary-soft: rgba(34, 211, 238, 0.18);
+  --secondary: #818cf8;
+  --secondary-soft: rgba(129, 140, 248, 0.18);
 
-  /* Marca (azul HydrIA) */
-  --primary: #0a84c6;
-  --primary-foreground: #ffffff;
-  --ring: rgba(10, 132, 198, 0.35);
+  --success: #34d399;
+  --success-soft: rgba(52, 211, 153, 0.16);
+  --warning: #fbbf24;
+  --warning-soft: rgba(251, 191, 36, 0.16);
+  --danger: #f87171;
+  --danger-soft: rgba(248, 113, 113, 0.16);
 
-  /* Neutros / UI */
-  --secondary: #eef2f7;
-  --secondary-foreground: #0f172a;
+  --shadow-lg: 0 20px 60px rgba(2, 6, 23, 0.35);
+  --shadow-md: 0 12px 34px rgba(2, 6, 23, 0.24);
 
-  --muted: #e9f1ff;
-  --muted-foreground: #64748b;
+  --radius-xl: 28px;
+  --radius-lg: 22px;
+  --radius-md: 18px;
 
-  --accent: #dbeeff;
-  --accent-foreground: #0f172a;
-
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-
-  /* Bordes/inputs */
-  --border: rgba(15, 23, 42, 0.10);
-  --input: rgba(255, 255, 255, 0.95);
-  --input-background: #ffffff;
-  --switch-background: rgba(10, 132, 198, 0.22);
-
-  --font-weight-medium: 500;
-  --font-weight-normal: 400;
-
-  /* Charts */
-  --chart-1: #0a84c6;
-  --chart-2: #06b6d4;
-  --chart-3: #10b981;
-  --chart-4: #f59e0b;
-  --chart-5: #ef4444;
-
-  --radius: 1.1rem;
-
-  /* Sidebar (más “limpia” como en las capturas) */
-  --sidebar: #ffffff;
-  --sidebar-foreground: #0f172a;
-  --sidebar-primary: #0a84c6;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e6f3ff;
-  --sidebar-accent-foreground: #0f172a;
-  --sidebar-border: rgba(15, 23, 42, 0.10);
-  --sidebar-ring: rgba(10, 132, 198, 0.35);
-
-  /* HydrIA states */
-  --status-safe: #16a34a;
-  --status-safe-foreground: #ffffff;
-  --status-safe-light: #dcfce7;
-
-  --status-warning: #f59e0b;
-  --status-warning-foreground: #ffffff;
-  --status-warning-light: #fef3c7;
-
-  --status-danger: #ef4444;
-  --status-danger-foreground: #ffffff;
-  --status-danger-light: #fee2e2;
-
-  --status-offline: #6b7280;
-  --status-offline-foreground: #ffffff;
-  --status-offline-light: #e5e7eb;
-
-  /* Alias para tu código (por si usas --status-warn) */
-  --status-warn: var(--status-warning);
+  --transition: 180ms ease;
 }
 
-.dark {
-  --background: #071023;
-  --foreground: #eaf0ff;
-
-  --card: #0b1730;
-  --card-foreground: #eaf0ff;
-
-  --popover: #0b1730;
-  --popover-foreground: #eaf0ff;
-
-  --primary: #60a5fa;
-  --primary-foreground: #071023;
-
-  --secondary: #0f2244;
-  --secondary-foreground: #eaf0ff;
-
-  --muted: #0f2244;
-  --muted-foreground: #a7b2c7;
-
-  --accent: rgba(96, 165, 250, 0.14);
-  --accent-foreground: #eaf0ff;
-
-  --border: rgba(96, 165, 250, 0.18);
-  --input: rgba(255, 255, 255, 0.06);
-  --ring: rgba(96, 165, 250, 0.45);
-
-  --sidebar: #0b1730;
-  --sidebar-foreground: #eaf0ff;
-  --sidebar-primary: #60a5fa;
-  --sidebar-primary-foreground: #071023;
-  --sidebar-accent: rgba(96, 165, 250, 0.14);
-  --sidebar-accent-foreground: #eaf0ff;
-  --sidebar-border: rgba(96, 165, 250, 0.16);
-  --sidebar-ring: rgba(96, 165, 250, 0.45);
+html,
+body,
+#root {
+  min-height: 100%;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
+body {
+  background:
+    radial-gradient(circle at top left, rgba(34, 211, 238, 0.08), transparent 26%),
+    radial-gradient(circle at bottom right, rgba(129, 140, 248, 0.08), transparent 24%),
+    linear-gradient(180deg, #020617 0%, #081120 100%);
+  color: var(--text);
+}
 
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
+a {
+  color: inherit;
+  text-decoration: none;
+}
 
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
 
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
+::selection {
+  background: rgba(34, 211, 238, 0.24);
+  color: white;
+}
 
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
+.hydria-shell {
+  min-height: 100vh;
+  color: var(--text);
+}
 
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
+.hydria-container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-left: 24px;
+  padding-right: 24px;
+}
 
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-input-background: var(--input-background);
-  --color-switch-background: var(--switch-background);
+.hydria-panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
 
-  --color-ring: var(--ring);
+.hydria-panel-strong {
+  background: var(--panel-strong);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
 
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
+.hydria-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-lg);
+  transition:
+    transform var(--transition),
+    border-color var(--transition),
+    background var(--transition),
+    box-shadow var(--transition);
+}
 
-  --radius-sm: calc(var(--radius) - 6px);
-  --radius-md: calc(var(--radius) - 3px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 6px);
+.hydria-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.055);
+}
 
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+.hydria-kpi {
+  background: rgba(2, 6, 23, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+}
+
+.hydria-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+}
+
+.hydria-badge-info {
+  color: #cffafe;
+  background: var(--primary-soft);
+  border-color: rgba(34, 211, 238, 0.24);
+}
+
+.hydria-badge-secondary {
+  color: #e0e7ff;
+  background: var(--secondary-soft);
+  border-color: rgba(129, 140, 248, 0.24);
+}
+
+.hydria-badge-success {
+  color: #d1fae5;
+  background: var(--success-soft);
+  border-color: rgba(52, 211, 153, 0.24);
+}
+
+.hydria-badge-warning {
+  color: #fde68a;
+  background: var(--warning-soft);
+  border-color: rgba(251, 191, 36, 0.24);
+}
+
+.hydria-badge-danger {
+  color: #fecaca;
+  background: var(--danger-soft);
+  border-color: rgba(248, 113, 113, 0.24);
+}
+
+.hydria-section-title {
+  color: var(--title);
+  font-size: clamp(1.5rem, 2vw, 2rem);
+  line-height: 1.1;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.hydria-section-subtitle {
+  color: var(--text-soft);
+  font-size: 0.98rem;
+  line-height: 1.7;
+}
+
+.hydria-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.82rem 1.15rem;
+  font-weight: 600;
+  transition:
+    transform var(--transition),
+    background var(--transition),
+    border-color var(--transition),
+    color var(--transition),
+    box-shadow var(--transition);
+}
+
+.hydria-btn:hover {
+  transform: translateY(-1px);
+}
+
+.hydria-btn-primary {
+  background: white;
+  color: #020617;
+  box-shadow: 0 12px 30px rgba(255, 255, 255, 0.12);
+}
+
+.hydria-btn-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.hydria-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.hydria-mode-real {
+  --mode-accent: var(--primary);
+  --mode-accent-soft: var(--primary-soft);
+}
+
+.hydria-mode-simulation {
+  --mode-accent: var(--secondary);
+  --mode-accent-soft: var(--secondary-soft);
+}
+
+.hydria-grid-auto {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.hydria-muted {
+  color: var(--text-soft);
+}
+
+.hydria-small {
+  font-size: 0.875rem;
+}
+
+.hydria-divider {
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 768px) {
+  .hydria-container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .hydria-panel,
+  .hydria-panel-strong {
+    border-radius: 22px;
+  }
+
+  .hydria-card,
+  .hydria-kpi {
+    border-radius: 18px;
+  }
 }
