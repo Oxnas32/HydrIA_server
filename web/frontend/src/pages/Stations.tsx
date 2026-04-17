@@ -17,12 +17,12 @@ function getStatusColor(status: string) {
 }
 
 const simulatedStations = [
-  { id: "sim-1", name: "Madrid", location: "Madrid", waterLevelCm: 110, rainMm: 18, batteryV: 3.8 },
-  { id: "sim-2", name: "Barcelona", location: "Barcelona", waterLevelCm: 135, rainMm: 24, batteryV: 3.7 },
-  { id: "sim-3", name: "Valencia", location: "Valencia", waterLevelCm: 95, rainMm: 14, batteryV: 3.9 },
-  { id: "sim-4", name: "Sevilla", location: "Sevilla", waterLevelCm: 82, rainMm: 11, batteryV: 3.8 },
-  { id: "sim-5", name: "Bilbao", location: "Bilbao", waterLevelCm: 145, rainMm: 20, batteryV: 3.7 },
-  { id: "sim-6", name: "Zaragoza", location: "Zaragoza", waterLevelCm: 76, rainMm: 8, batteryV: 3.9 },
+  { id: "sim-1", name: "Madrid", location: "Madrid", waterLevelCm: 110, rainMm: 18, turbidity: 2.1, humidity: 45 },
+  { id: "sim-2", name: "Barcelona", location: "Barcelona", waterLevelCm: 135, rainMm: 24, turbidity: 3.5, humidity: 62 },
+  { id: "sim-3", name: "Valencia", location: "Valencia", waterLevelCm: 95, rainMm: 14, turbidity: 1.8, humidity: 55 },
+  { id: "sim-4", name: "Sevilla", location: "Sevilla", waterLevelCm: 82, rainMm: 11, turbidity: 4.2, humidity: 38 },
+  { id: "sim-5", name: "Bilbao", location: "Bilbao", waterLevelCm: 145, rainMm: 20, turbidity: 2.9, humidity: 72 },
+  { id: "sim-6", name: "Zaragoza", location: "Zaragoza", waterLevelCm: 76, rainMm: 8, turbidity: 1.2, humidity: 41 },
 ];
 
 export default function Stations() {
@@ -53,7 +53,8 @@ export default function Stations() {
           {stationsToShow.map((station: any, index: number) => {
             const waterLevel = station?.waterLevelCm;
             const rain = station?.rainMm;
-            const battery = station?.batteryV;
+            const turbidity = station?.turbidity;
+            const humidity = station?.humidity;
             const status = getStatus(waterLevel);
 
             return (
@@ -82,7 +83,7 @@ export default function Stations() {
                   </span>
                 </div>
 
-                <div className="mt-5 grid grid-cols-3 gap-3">
+                <div className="mt-5 grid grid-cols-4 gap-3">
                   <div className="rounded-2xl bg-slate-900 p-4">
                     <div className="text-xs text-slate-400">Nivel</div>
                     <div className="mt-2 text-xl font-semibold">
@@ -98,9 +99,16 @@ export default function Stations() {
                   </div>
 
                   <div className="rounded-2xl bg-slate-900 p-4">
-                    <div className="text-xs text-slate-400">Batería</div>
+                    <div className="text-xs text-slate-400">Turbidez</div>
                     <div className="mt-2 text-xl font-semibold">
-                      {battery != null ? `${battery} V` : "—"}
+                      {turbidity != null ? `${turbidity} NTU` : "—"}
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl bg-slate-900 p-4">
+                    <div className="text-xs text-slate-400">Humedad</div>
+                    <div className="mt-2 text-xl font-semibold">
+                      {humidity != null ? `${humidity} %` : "—"}
                     </div>
                   </div>
                 </div>

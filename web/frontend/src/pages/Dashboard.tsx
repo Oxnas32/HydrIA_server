@@ -50,17 +50,17 @@ export default function Dashboard() {
   const shownStations = mode === "real"
     ? stations.slice(0, 2)
     : [
-        { id: "sim-1", name: "Madrid", location: "Madrid", waterLevelCm: 110, rainMm: 18, batteryV: 3.8 },
-        { id: "sim-2", name: "Barcelona", location: "Barcelona", waterLevelCm: 135, rainMm: 24, batteryV: 3.7 },
+        { id: "sim-1", name: "Madrid", location: "Madrid", waterLevelCm: 110, rainMm: 18, turbidity: 2.1, humidity: 45 },
+        { id: "sim-2", name: "Barcelona", location: "Barcelona", waterLevelCm: 135, rainMm: 24, turbidity: 3.5, humidity: 62 },
       ];
 
   const allStationsForSelection = mode === "real"
     ? stations
     : [
-        { id: "sim-1", name: "Madrid", location: "Madrid", lat: 40.4168, lng: -3.7038, waterLevelCm: 110, rainMm: 18, batteryV: 3.8 },
-        { id: "sim-2", name: "Barcelona", location: "Barcelona", lat: 41.3874, lng: 2.1686, waterLevelCm: 135, rainMm: 24, batteryV: 3.7 },
-        { id: "sim-3", name: "Valencia", location: "Valencia", lat: 39.4699, lng: -0.3763, waterLevelCm: 95, rainMm: 14, batteryV: 3.9 },
-        { id: "sim-4", name: "Sevilla", location: "Sevilla", lat: 37.3891, lng: -5.9845, waterLevelCm: 82, rainMm: 11, batteryV: 3.8 },
+        { id: "sim-1", name: "Madrid", location: "Madrid", lat: 40.4168, lng: -3.7038, waterLevelCm: 110, rainMm: 18, turbidity: 2.1, humidity: 45 },
+        { id: "sim-2", name: "Barcelona", location: "Barcelona", lat: 41.3874, lng: 2.1686, waterLevelCm: 135, rainMm: 24, turbidity: 3.5, humidity: 62 },
+        { id: "sim-3", name: "Valencia", location: "Valencia", lat: 39.4699, lng: -0.3763, waterLevelCm: 95, rainMm: 14, turbidity: 1.8, humidity: 55 },
+        { id: "sim-4", name: "Sevilla", location: "Sevilla", lat: 37.3891, lng: -5.9845, waterLevelCm: 82, rainMm: 11, turbidity: 4.2, humidity: 38 },
       ];
 
   const [selectedStation, setSelectedStation] = useState<any>(null);
@@ -75,7 +75,8 @@ export default function Dashboard() {
 
   const selectedWaterLevel = selectedStation?.waterLevelCm ?? 0;
   const selectedRain = selectedStation?.rainMm ?? 0;
-  const selectedBattery = selectedStation?.batteryV ?? 0;
+  const selectedTurbidity = selectedStation?.turbidity ?? 0;
+  const selectedHumidity = selectedStation?.humidity ?? 0;
   const selectedStatus = getStatus(selectedWaterLevel);
 
   const levelSeries = useMemo(() => buildDemoSeries(selectedWaterLevel, "level"), [selectedWaterLevel]);
@@ -206,7 +207,7 @@ export default function Dashboard() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
                   <div className="rounded-2xl bg-slate-900 p-4">
                     <div className="text-xs text-slate-400">Nivel de agua</div>
                     <div className="mt-2 text-2xl font-semibold text-white">
@@ -222,9 +223,16 @@ export default function Dashboard() {
                   </div>
 
                   <div className="rounded-2xl bg-slate-900 p-4">
-                    <div className="text-xs text-slate-400">Batería</div>
+                    <div className="text-xs text-slate-400">Turbidez</div>
                     <div className="mt-2 text-2xl font-semibold text-white">
-                      {selectedBattery} V
+                      {selectedTurbidity} NTU
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl bg-slate-900 p-4">
+                    <div className="text-xs text-slate-400">Humedad</div>
+                    <div className="mt-2 text-2xl font-semibold text-white">
+                      {selectedHumidity}%
                     </div>
                   </div>
 

@@ -62,7 +62,8 @@ app.get("/stations", (req, res) => {
         if (r.site) stationsMap[r.nodeId].name = r.site;
         if (r._field === "waterLevelCm") stationsMap[r.nodeId].waterLevelCm = r._value;
         if (r._field === "rainMm") stationsMap[r.nodeId].rainMm = r._value;
-        if (r._field === "batteryV") stationsMap[r.nodeId].battery = r._value;
+        if (r._field === "turbidity") stationsMap[r.nodeId].turbidity = r._value;
+        if (r._field === "humidity") stationsMap[r.nodeId].humidity = r._value;
         if (r._field === "lat") stationsMap[r.nodeId].lat = r._value;
         if (r._field === "lng") stationsMap[r.nodeId].lng = r._value;
         if (r.province) stationsMap[r.nodeId].province = r.province;
@@ -147,7 +148,8 @@ app.get("/latest", (req, res) => {
         time: null,
         waterLevelCm: null,
         rainMm: null,
-        batteryV: null,
+        turbidity: null,
+        humidity: null,
       };
 
       for (const r of rows) {
@@ -155,7 +157,8 @@ app.get("/latest", (req, res) => {
         if (r.site) out.site = r.site;
         if (r._field === "waterLevelCm") out.waterLevelCm = r._value;
         if (r._field === "rainMm") out.rainMm = r._value;
-        if (r._field === "batteryV") out.batteryV = r._value;
+        if (r._field === "turbidity") out.turbidity = r._value;
+        if (r._field === "humidity") out.humidity = r._value;
         if (r._field === "lat") out.lat = r._value;
         if (r._field === "lng") out.lng = r._value;
         if (r.province) out.province = r.province;
@@ -182,7 +185,7 @@ app.post("/telemetry/notify_delete", (req, res) => {
   res.json({ ok: true });
 });
 app.post("/telemetry", async (req, res) => {
-  const { nodeId, site, waterLevelCm, rainMm, batteryV, lat, lng, province } = req.body;
+  const { nodeId, site, waterLevelCm, rainMm, turbidity, humidity, lat, lng, province } = req.body;
 
   const errors = [];
 
@@ -198,8 +201,11 @@ app.post("/telemetry", async (req, res) => {
   if (typeof rainMm !== "number" || isNaN(rainMm)) {
     errors.push("'rainMm' must be a valid number.");
   }
-  if (typeof batteryV !== "number" || isNaN(batteryV)) {
-    errors.push("'batteryV' must be a valid number.");
+  if (turbidity !== undefined && (typeof turbidity !== "number" || isNaN(turbidity))) {
+    errors.push("'turbidity' must be a valid number.");
+  }
+  if (humidity !== undefined && (typeof humidity !== "number" || isNaN(humidity))) {
+    errors.push("'humidity' must be a valid number.");
   }
   if (lat !== undefined && (typeof lat !== "number" || isNaN(lat))) {
     errors.push("'lat' must be a numeric latitude.");
@@ -216,9 +222,10 @@ app.post("/telemetry", async (req, res) => {
     .tag("nodeId", String(nodeId))
     .tag("site", String(site))
     .floatField("waterLevelCm", Number(waterLevelCm))
-    .floatField("rainMm", Number(rainMm))
-    .floatField("batteryV", Number(batteryV));
+    .floatField("rainMm", Number(rainMm));
     
+  if (turbidity !== undefined) p.floatField("turbidity", Number(turbidity));
+  if (humidity !== undefined) p.floatField("humidity", Number(humidity));
   if (lat !== undefined) p.floatField("lat", Number(lat));
   if (lng !== undefined) p.floatField("lng", Number(lng));
   if (province) p.tag("province", String(province));
@@ -250,7 +257,8 @@ app.post("/telemetry", async (req, res) => {
           time: null,
           waterLevelCm: null,
           rainMm: null,
-          batteryV: null,
+          turbidity: null,
+          humidity: null,
         };
 
         for (const r of rows) {
@@ -258,7 +266,8 @@ app.post("/telemetry", async (req, res) => {
           if (r.site) out.site = r.site;
           if (r._field === "waterLevelCm") out.waterLevelCm = r._value;
           if (r._field === "rainMm") out.rainMm = r._value;
-          if (r._field === "batteryV") out.batteryV = r._value;
+          if (r._field === "turbidity") out.turbidity = r._value;
+          if (r._field === "humidity") out.humidity = r._value;
           if (r._field === "lat") out.lat = r._value;
           if (r._field === "lng") out.lng = r._value;
           if (r.province) out.province = r.province;

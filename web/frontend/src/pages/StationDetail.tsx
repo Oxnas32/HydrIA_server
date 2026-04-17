@@ -79,7 +79,8 @@ export default function StationDetail() {
 
   const waterLevel = station?.waterLevelCm;
   const rain = station?.rainMm;
-  const battery = station?.batteryV;
+  const turbidity = station?.turbidity;
+  const humidity = station?.humidity;
   const status = getStatus(waterLevel);
 
   const waterSeries = useMemo(
@@ -132,7 +133,7 @@ export default function StationDetail() {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid gap-4 md:grid-cols-4">
         <div className="rounded-3xl bg-white/5 p-5">
           <div className="text-sm text-slate-400">Nivel de agua</div>
           <div className="mt-2 text-3xl font-semibold">
@@ -148,9 +149,16 @@ export default function StationDetail() {
         </div>
 
         <div className="rounded-3xl bg-white/5 p-5">
-          <div className="text-sm text-slate-400">Batería</div>
+          <div className="text-sm text-slate-400">Turbidez</div>
           <div className="mt-2 text-3xl font-semibold">
-            {battery != null ? `${battery} V` : "—"}
+            {turbidity != null ? `${turbidity} NTU` : "—"}
+          </div>
+        </div>
+
+        <div className="rounded-3xl bg-white/5 p-5">
+          <div className="text-sm text-slate-400">Humedad</div>
+          <div className="mt-2 text-3xl font-semibold">
+            {humidity != null ? `${humidity} %` : "—"}
           </div>
         </div>
       </section>

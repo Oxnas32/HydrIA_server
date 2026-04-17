@@ -92,7 +92,8 @@ def add_new_item():
     lng = get_float("Enter Longitude (e.g. -8.72): ")
     water = get_float("Enter Water Level (cm): ")
     rain = get_float("Enter Rain (mm): ")
-    battery = get_float("Enter Battery Voltage (numeric % or V): ")
+    turbidity = get_float("Enter Turbidity (NTU): ")
+    humidity = get_float("Enter Humidity (%): ")
     
     post_telemetry({
         "nodeId": nodeId,
@@ -102,7 +103,8 @@ def add_new_item():
         "lng": lng,
         "waterLevelCm": water,
         "rainMm": rain,
-        "batteryV": battery
+        "turbidity": turbidity,
+        "humidity": humidity
     })
 
 def update_existing_item():
@@ -131,7 +133,8 @@ def update_existing_item():
     def_lng = latest.get("lng")
     def_water = latest.get("waterLevelCm")
     def_rain = latest.get("rainMm")
-    def_battery = latest.get("batteryV")
+    def_turb = latest.get("turbidity")
+    def_hum = latest.get("humidity")
 
     site = get_string(f"Enter Site Name for {nodeId}", def_site)
     province = get_string(f"Enter Province", def_prov)
@@ -139,7 +142,8 @@ def update_existing_item():
     lng = get_float("Enter new Longitude", def_lng)
     water = get_float("Enter new Water Level (cm)", def_water)
     rain = get_float("Enter new Rain (mm)", def_rain)
-    battery = get_float("Enter new Battery %", def_battery)
+    turbidity = get_float("Enter new Turbidity (NTU)", def_turb)
+    humidity = get_float("Enter new Humidity (%)", def_hum)
     
     payload = {
         "nodeId": nodeId,
@@ -147,7 +151,8 @@ def update_existing_item():
         "province": province,
         "waterLevelCm": water,
         "rainMm": rain,
-        "batteryV": battery
+        "turbidity": turbidity,
+        "humidity": humidity
     }
     if lat is not None: payload["lat"] = lat
     if lng is not None: payload["lng"] = lng
