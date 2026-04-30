@@ -74,7 +74,7 @@ export default function StationDetail() {
   if (!station) {
     return (
       <div className="rounded-3xl bg-white/5 p-6">
-        <h1 className="text-2xl font-semibold">Estación no encontrada</h1>
+        <h1 className="text-base font-semibold text-slate-900 dark:text-white">Estación no encontrada</h1>
         <Link
           to="/stations"
           className="mt-4 inline-block rounded bg-white/10 px-4 py-2"
@@ -114,24 +114,24 @@ export default function StationDetail() {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-cyan-900 p-8">
+      <section className="rounded-3xl bg-gradient-to-br from-slate-100 via-white to-slate-200 dark:from-indigo-950 dark:via-violet-950 dark:to-fuchsia-950 text-slate-900 dark:text-white p-8">
         <Link
           to="/stations"
-          className="rounded bg-white/10 px-4 py-2 text-sm"
+          className="rounded bg-white shadow-sm border border-slate-200 dark:border-none dark:bg-white/10 px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-white/20 transition-colors text-slate-900 dark:text-white"
         >
           ← Volver a estaciones
         </Link>
 
         <div className="mt-5 flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm text-slate-400">Detalle de estación</p>
-            <h1 className="text-4xl font-bold">
+            <p className="text-sm text-slate-500 dark:text-slate-400">Detalle de estación</p>
+            <h1 className="text-4xl font-bold text-slate-900 dark:text-white">
               {station?.name ?? "Estación"}
             </h1>
-            <p className="mt-3 text-slate-300">
+            <p className="mt-3 text-slate-600 dark:text-slate-300">
               {(station?.location ?? station?.province ?? "Sin ubicación")} - {station?.id ?? "—"}
             </p>
-            <p className="mt-3 max-w-3xl text-sm text-slate-200">
+            <p className="mt-3 max-w-3xl text-sm text-slate-600 dark:text-slate-200">
               {summary}
             </p>
           </div>
@@ -147,46 +147,46 @@ export default function StationDetail() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-4">
-        <div className="rounded-3xl bg-white/5 p-5">
-          <div className="text-sm text-slate-400">Nivel de agua</div>
-          <div className="mt-2 text-3xl font-semibold">
+        <div className="rounded-3xl bg-white shadow-sm border border-slate-100 dark:border-none dark:bg-white/5 p-5">
+          <div className="text-sm text-slate-500 dark:text-slate-400">Nivel de agua</div>
+          <div className="mt-2 text-3xl font-semibold text-slate-900 dark:text-white">
             {waterLevel != null ? `${waterLevel} cm` : "—"}
           </div>
         </div>
 
-        <div className="rounded-3xl bg-white/5 p-5">
-          <div className="text-sm text-slate-400">Lluvia</div>
-          <div className="mt-2 text-3xl font-semibold">
+        <div className="rounded-3xl bg-white shadow-sm border border-slate-100 dark:border-none dark:bg-white/5 p-5">
+          <div className="text-sm text-slate-500 dark:text-slate-400">Lluvia</div>
+          <div className="mt-2 text-3xl font-semibold text-slate-900 dark:text-white">
             {rain != null ? `${rain} mm` : "—"}
           </div>
         </div>
 
-        <div className="rounded-3xl bg-white/5 p-5">
-          <div className="text-sm text-slate-400">Turbidez</div>
-          <div className="mt-2 text-3xl font-semibold">
+        <div className="rounded-3xl bg-white shadow-sm border border-slate-100 dark:border-none dark:bg-white/5 p-5">
+          <div className="text-sm text-slate-500 dark:text-slate-400">Turbidez</div>
+          <div className="mt-2 text-3xl font-semibold text-slate-900 dark:text-white">
             {turbidity != null ? turbidity : "—"}
           </div>
         </div>
 
-        <div className="rounded-3xl bg-white/5 p-5">
-          <div className="text-sm text-slate-400">Humedad</div>
-          <div className="mt-2 text-3xl font-semibold">
+        <div className="rounded-3xl bg-white shadow-sm border border-slate-100 dark:border-none dark:bg-white/5 p-5">
+          <div className="text-sm text-slate-500 dark:text-slate-400">Humedad</div>
+          <div className="mt-2 text-3xl font-semibold text-slate-900 dark:text-white">
             {humidity != null ? humidity : "—"}
           </div>
         </div>
       </section>
 
-      <section className="rounded-3xl bg-white/5 p-6">
-        <h2 className="text-2xl font-semibold">Motivos de evaluación</h2>
+      <section className="rounded-3xl bg-white shadow-md border border-slate-100 dark:border-none dark:bg-white/5 p-6">
+        <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Motivos de evaluación</h2>
 
         {reasons.length === 0 ? (
-          <p className="mt-4 text-slate-300">No hay motivos detallados disponibles.</p>
+          <p className="mt-4 text-slate-600 dark:text-slate-300">No hay motivos detallados disponibles.</p>
         ) : (
           <div className="mt-4 flex flex-wrap gap-3">
             {reasons.map((reason: string, index: number) => (
               <span
                 key={index}
-                className="rounded-full bg-white/10 px-4 py-2 text-sm text-slate-200"
+                className="rounded-full bg-slate-100 dark:bg-white/10 px-4 py-2 text-sm text-slate-700 dark:text-slate-200"
               >
                 {reason}
               </span>
@@ -195,10 +195,10 @@ export default function StationDetail() {
         )}
       </section>
 
-      <section className="rounded-3xl bg-white/5 p-6">
+      <section className="rounded-3xl bg-white shadow-md border border-slate-100 dark:border-none dark:bg-white/5 p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-2xl font-semibold">Histórico</h2>
-          <span className="text-sm text-slate-400">últimas 24 h</span>
+          <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Histórico</h2>
+          <span className="text-sm text-slate-500 dark:text-slate-400">últimas 24 h</span>
         </div>
 
         {historyError ? (
@@ -256,34 +256,34 @@ export default function StationDetail() {
         )}
       </section>
 
-      <section className="rounded-3xl bg-white/5 p-6">
-        <h2 className="text-2xl font-semibold">Baremo de referencia</h2>
+      <section className="rounded-3xl bg-white shadow-md border border-slate-100 dark:border-none dark:bg-white/5 p-6">
+        <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Baremo de referencia</h2>
 
         <div className="mt-5 grid gap-4 md:grid-cols-4">
-          <div className="rounded-2xl bg-slate-900 p-4">
+          <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
             <div className="font-semibold text-white">Nivel de agua</div>
-            <p className="mt-2 text-sm text-slate-300">Normal: &lt; 80 cm</p>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Normal: &lt; 80 cm</p>
             <p className="text-sm text-slate-300">Vigilancia: 80 - 119 cm</p>
             <p className="text-sm text-slate-300">Alerta: ≥ 120 cm</p>
           </div>
 
-          <div className="rounded-2xl bg-slate-900 p-4">
+          <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
             <div className="font-semibold text-white">Lluvia</div>
-            <p className="mt-2 text-sm text-slate-300">Baja: &lt; 20 mm</p>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Baja: &lt; 20 mm</p>
             <p className="text-sm text-slate-300">Media: 20 - 40 mm</p>
             <p className="text-sm text-slate-300">Alta: &gt; 40 mm</p>
           </div>
 
-          <div className="rounded-2xl bg-slate-900 p-4">
+          <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
             <div className="font-semibold text-white">Turbidez</div>
-            <p className="mt-2 text-sm text-slate-300">Normal: &lt; 50</p>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Normal: &lt; 50</p>
             <p className="text-sm text-slate-300">Vigilancia: 50 - 79</p>
             <p className="text-sm text-slate-300">Alta: ≥ 80</p>
           </div>
 
-          <div className="rounded-2xl bg-slate-900 p-4">
+          <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
             <div className="font-semibold text-white">Humedad</div>
-            <p className="mt-2 text-sm text-slate-300">Normal: &lt; 70</p>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Normal: &lt; 70</p>
             <p className="text-sm text-slate-300">Elevada: 70 - 84</p>
             <p className="text-sm text-slate-300">Muy alta: ≥ 85</p>
           </div>

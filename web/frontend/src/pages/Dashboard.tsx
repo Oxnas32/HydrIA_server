@@ -94,8 +94,8 @@ export default function Dashboard() {
       <section
         className={`rounded-3xl p-8 ${
           mode === "real"
-            ? "bg-gradient-to-br from-slate-900 via-slate-800 to-cyan-900"
-            : "bg-gradient-to-br from-slate-900 via-indigo-900 to-blue-900"
+            ? "bg-gradient-to-br from-slate-100 via-white to-slate-200 dark:from-indigo-950 dark:via-violet-950 dark:to-fuchsia-950 text-slate-900 dark:text-white"
+            : "bg-gradient-to-br from-slate-50 via-indigo-50 to-white dark:from-indigo-950 dark:via-purple-950 dark:to-violet-900 text-slate-900 dark:text-white"
         }`}
       >
         <div className="space-y-6">
@@ -106,7 +106,7 @@ export default function Dashboard() {
                 : "Simulación de despliegue nacional"}
             </h1>
 
-            <p className="mt-3 max-w-3xl text-slate-200">
+            <p className="mt-3 max-w-3xl text-slate-600 dark:text-slate-200">
               {mode === "real"
                 ? "Consulta pública del estado actual de las estaciones reales del proyecto."
                 : "Vista simulada de cómo podría escalarse la plataforma a nivel nacional."}
@@ -129,8 +129,8 @@ export default function Dashboard() {
           </div>
 
           <div className="grid grid-cols-2 gap-4 pt-4 lg:grid-cols-4">
-            <div className="rounded-2xl bg-white/10 p-4">
-              <div className="text-sm text-slate-300">
+            <div className="rounded-2xl bg-white shadow-sm border border-slate-100 dark:border-none dark:bg-white/10 p-4">
+              <div className="text-sm text-slate-500 dark:text-slate-300">
                 {mode === "real" ? "Estaciones activas" : "Estaciones simuladas"}
               </div>
               <div className="mt-2 text-2xl font-semibold">
@@ -138,8 +138,8 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="rounded-2xl bg-white/10 p-4">
-              <div className="text-sm text-slate-300">
+            <div className="rounded-2xl bg-white shadow-sm border border-slate-100 dark:border-none dark:bg-white/10 p-4">
+              <div className="text-sm text-slate-500 dark:text-slate-300">
                 {mode === "real" ? "Alertas activas" : "Alertas estimadas"}
               </div>
               <div className="mt-2 text-2xl font-semibold">
@@ -147,15 +147,15 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="rounded-2xl bg-white/10 p-4">
-              <div className="text-sm text-slate-300">Áreas cubiertas</div>
-              <div className="mt-2 text-sm font-medium text-white">
+            <div className="rounded-2xl bg-white shadow-sm border border-slate-100 dark:border-none dark:bg-white/10 p-4">
+              <div className="text-sm text-slate-500 dark:text-slate-300">Áreas cubiertas</div>
+              <div className="mt-2 text-sm font-medium text-slate-900 dark:text-white">
                 {mode === "real" ? (coveredAreas.length > 0 ? coveredAreas.join(", ") : "Sin datos") : "España"}
               </div>
             </div>
 
-            <div className="rounded-2xl bg-white/10 p-4">
-              <div className="text-sm text-slate-300">Acceso</div>
+            <div className="rounded-2xl bg-white shadow-sm border border-slate-100 dark:border-none dark:bg-white/10 p-4">
+              <div className="text-sm text-slate-500 dark:text-slate-300">Acceso</div>
               <div className="mt-2 text-2xl font-semibold">Público</div>
             </div>
           </div>
@@ -168,8 +168,8 @@ export default function Dashboard() {
             onClick={() => setMode("real")}
             className={`rounded-xl px-4 py-3 text-sm font-semibold transition ${
               mode === "real"
-                ? "bg-cyan-500 text-white"
-                : "bg-cyan-900/40 text-cyan-200 hover:bg-cyan-800/60"
+                ? "bg-indigo-600 text-white dark:bg-fuchsia-600"
+                : "bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-fuchsia-900/40 dark:text-fuchsia-200 dark:hover:bg-fuchsia-800/60"
             }`}
           >
             Vista real
@@ -179,8 +179,8 @@ export default function Dashboard() {
             onClick={() => setMode("simulation")}
             className={`rounded-xl px-4 py-3 text-sm font-semibold transition ${
               mode === "simulation"
-                ? "bg-orange-400 text-slate-950"
-                : "bg-orange-600 text-white hover:bg-orange-500"
+                ? "bg-orange-400 text-slate-900"
+                : "bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/40 dark:text-orange-200 dark:hover:bg-orange-800/60"
             }`}
           >
             Simulación nacional
@@ -189,15 +189,15 @@ export default function Dashboard() {
       </div>
 
       <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="rounded-3xl bg-white/5 p-5">
+        <div className="rounded-3xl bg-white shadow-md border border-slate-100 dark:border-none dark:bg-white/5 p-5">
           <h2 className="mb-4 text-2xl font-semibold">
             {mode === "real" ? "Mapa de estaciones" : "Mapa de despliegue"}
           </h2>
 
           <NationalMap onSelectStation={setSelectedStation} />
 
-          <div className="mt-4 rounded-2xl bg-slate-900/70 p-4">
-            <div className="mb-3 text-lg font-semibold text-white">Leyenda</div>
+          <div className="mt-4 rounded-2xl bg-white shadow-sm border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
+            <div className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">Leyenda</div>
 
             <div className="flex flex-wrap gap-6 text-base text-slate-200">
               <div className="flex items-center gap-2">
@@ -214,8 +214,8 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="mt-11 flex justify-end text-right text-sm text-slate-300">
-              <span className="font-medium text-white">Última actualización:</span>{" "}
+            <div className="mt-11 flex justify-end text-right text-sm text-slate-600 dark:text-slate-300">
+              <span className="font-medium text-slate-900 dark:text-white">Última actualización:</span>{" "}
               {mode === "real"
                 ? stations.length > 0
                   ? new Date(
@@ -232,7 +232,7 @@ export default function Dashboard() {
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-3xl bg-white/5 p-5">
+          <div className="rounded-3xl bg-white shadow-md border border-slate-100 dark:border-none dark:bg-white/5 p-5">
             <h2 className="mb-4 text-2xl font-semibold">
               {selectedStation ? selectedStation.name : "Estación seleccionada"}
             </h2>
@@ -240,8 +240,8 @@ export default function Dashboard() {
             {selectedStation ? (
               <div className="space-y-5">
                 <div>
-                  <p className="text-sm text-slate-400">Ubicación</p>
-                  <p className="mt-1 text-lg font-medium text-white">
+                  <p className="text-sm text-slate-600 dark:text-slate-400">Ubicación</p>
+                  <p className="mt-1 text-lg font-medium text-slate-900 dark:text-white">
                     {selectedStation.location ?? selectedStation.province ?? "Sin ubicación"}
                   </p>
                   <p className="mt-3 text-sm text-slate-300">
@@ -250,36 +250,36 @@ export default function Dashboard() {
                 </div>
 
                 <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(140px,1fr))]">
-                  <div className="rounded-2xl bg-slate-900 p-4">
-                    <div className="text-xs text-slate-400">Nivel de agua</div>
-                    <div className="mt-2 text-2xl font-semibold text-white">
+                  <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
+                    <div className="text-xs text-slate-500 dark:text-slate-400">Nivel de agua</div>
+                    <div className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
                       {selectedWaterLevel} cm
                     </div>
                   </div>
 
-                  <div className="rounded-2xl bg-slate-900 p-4">
-                    <div className="text-xs text-slate-400">Precipitación</div>
-                    <div className="mt-2 text-2xl font-semibold text-white">
+                  <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
+                    <div className="text-xs text-slate-500 dark:text-slate-400">Precipitación</div>
+                    <div className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
                       {selectedRain} mm
                     </div>
                   </div>
 
-                  <div className="rounded-2xl bg-slate-900 p-4">
-                    <div className="text-xs text-slate-400">Turbidez</div>
-                    <div className="mt-2 text-2xl font-semibold text-white">
+                  <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
+                    <div className="text-xs text-slate-500 dark:text-slate-400">Turbidez</div>
+                    <div className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
                       {selectedTurbidity}
                     </div>
                   </div>
 
-                  <div className="rounded-2xl bg-slate-900 p-4">
-                    <div className="text-xs text-slate-400">Humedad</div>
-                    <div className="mt-2 text-2xl font-semibold text-white">
+                  <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
+                    <div className="text-xs text-slate-500 dark:text-slate-400">Humedad</div>
+                    <div className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
                       {selectedHumidity}
                     </div>
                   </div>
 
-                  <div className="rounded-2xl bg-slate-900 p-4">
-                    <div className="text-xs text-slate-400">Estado</div>
+                  <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
+                    <div className="text-xs text-slate-500 dark:text-slate-400">Estado</div>
                     <div className="mt-3">
                       <span
                         className={`inline-flex rounded-full px-4 py-2 text-sm font-semibold ${getStatusColor(
@@ -299,10 +299,10 @@ export default function Dashboard() {
             )}
           </div>
 
-          <div className="rounded-3xl bg-white/5 p-5">
+          <div className="rounded-3xl bg-white shadow-md border border-slate-100 dark:border-none dark:bg-white/5 p-5">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-2xl font-semibold">Evolución últimas 24 h</h2>
-              <span className="text-xs text-slate-400">preparado para datos periódicos</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400">preparado para datos periódicos</span>
             </div>
 
             <div className="space-y-4">
@@ -317,7 +317,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="rounded-2xl bg-slate-900 p-4">
+              <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
                 <svg viewBox="0 0 520 180" className="h-56 w-full">
                   <line x1="0" y1="150" x2="520" y2="150" stroke="#334155" strokeWidth="1" />
                   <line x1="0" y1="110" x2="520" y2="110" stroke="#334155" strokeWidth="1" />
@@ -341,13 +341,13 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <section className="rounded-3xl bg-white/5 p-6">
+      <section className="rounded-3xl bg-white shadow-md border border-slate-100 dark:border-none dark:bg-white/5 p-6">
         <h2 className="text-2xl font-semibold">
           {mode === "real" ? "Modo real" : "Modo despliegue nacional"}
         </h2>
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">
-          <div className="rounded-2xl bg-slate-900 p-4">
+          <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
             <div className="text-base font-semibold">Qué muestra</div>
             <p className="mt-2 text-sm text-slate-300">
               {mode === "real"
@@ -356,7 +356,7 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <div className="rounded-2xl bg-slate-900 p-4">
+          <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
             <div className="text-base font-semibold">Objetivo</div>
             <p className="mt-2 text-sm text-slate-300">
               {mode === "real"
@@ -365,7 +365,7 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <div className="rounded-2xl bg-slate-900 p-4">
+          <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
             <div className="text-base font-semibold">Interpretación</div>
             <p className="mt-2 text-sm text-slate-300">
               {mode === "real"
