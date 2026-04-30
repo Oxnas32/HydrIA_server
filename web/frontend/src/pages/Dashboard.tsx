@@ -97,8 +97,8 @@ export default function Dashboard() {
       <section
         className={`rounded-3xl p-8 ${
           mode === "real"
-            ? "bg-gradient-to-br from-slate-100 via-white to-slate-200 dark:from-indigo-950 dark:via-violet-950 dark:to-fuchsia-950 text-slate-900 dark:text-white"
-            : "bg-gradient-to-br from-slate-50 via-indigo-50 to-white dark:from-indigo-950 dark:via-purple-950 dark:to-violet-900 text-slate-900 dark:text-white"
+            ? "bg-gradient-to-br from-white via-cyan-50 to-blue-100 dark:from-indigo-950 dark:via-violet-950 dark:to-fuchsia-950 text-slate-900 dark:text-white"
+            : "bg-gradient-to-br from-white via-blue-50 to-cyan-100 dark:from-indigo-950 dark:via-purple-950 dark:to-violet-900 text-slate-900 dark:text-white"
         }`}
       >
         <div className="space-y-6">
@@ -132,7 +132,7 @@ export default function Dashboard() {
           </div>
 
           <div className="grid grid-cols-2 gap-4 pt-4 lg:grid-cols-4">
-            <div className="rounded-2xl bg-white shadow-sm border border-slate-100 dark:border-none dark:bg-white/10 p-4">
+            <div className="rounded-2xl bg-gradient-to-br from-white to-cyan-50 shadow-sm border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/60 dark:to-fuchsia-900/30 p-4">
               <div className="text-sm text-slate-700 dark:text-slate-300">
                 {mode === "real" ? "Estaciones activas" : "Estaciones simuladas"}
               </div>
@@ -141,7 +141,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="rounded-2xl bg-white shadow-sm border border-slate-100 dark:border-none dark:bg-white/10 p-4">
+            <div className="rounded-2xl bg-gradient-to-br from-white to-cyan-50 shadow-sm border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/60 dark:to-fuchsia-900/30 p-4">
               <div className="text-sm text-slate-700 dark:text-slate-300">
                 {mode === "real" ? "Alertas activas" : "Alertas estimadas"}
               </div>
@@ -150,14 +150,14 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="rounded-2xl bg-white shadow-sm border border-slate-100 dark:border-none dark:bg-white/10 p-4">
+            <div className="rounded-2xl bg-gradient-to-br from-white to-cyan-50 shadow-sm border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/60 dark:to-fuchsia-900/30 p-4">
               <div className="text-sm text-slate-700 dark:text-slate-300">Áreas cubiertas</div>
               <div className="mt-2 text-sm font-medium text-slate-900 dark:text-white">
                 {mode === "real" ? (coveredAreas.length > 0 ? coveredAreas.join(", ") : "Sin datos") : "España"}
               </div>
             </div>
 
-            <div className="rounded-2xl bg-white shadow-sm border border-slate-100 dark:border-none dark:bg-white/10 p-4">
+            <div className="rounded-2xl bg-gradient-to-br from-white to-cyan-50 shadow-sm border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/60 dark:to-fuchsia-900/30 p-4">
               <div className="text-sm text-slate-700 dark:text-slate-300">Acceso</div>
               <div className="mt-2 text-2xl font-semibold">Público</div>
             </div>
@@ -192,7 +192,7 @@ export default function Dashboard() {
       </div>
 
       <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="rounded-3xl bg-white shadow-md border border-slate-100 dark:border-none dark:bg-white/5 p-5">
+        <div className="rounded-3xl bg-gradient-to-br from-white to-cyan-50 shadow-md border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/50 dark:to-fuchsia-900/20 p-5">
           <h2 className="mb-4 text-2xl font-semibold">
             {mode === "real" ? "Mapa de estaciones" : "Mapa de despliegue"}
           </h2>
@@ -202,7 +202,7 @@ export default function Dashboard() {
           <div className="mt-4 rounded-2xl bg-white shadow-sm border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
             <div className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">Leyenda</div>
 
-            <div className="flex flex-wrap gap-6 text-base text-slate-200">
+            <div className="flex flex-wrap gap-6 text-base text-slate-800 dark:text-slate-200">
               <div className="flex items-center gap-2">
                 <img src={dropGreen} alt="Normal" className="h-8 w-8 object-contain" />
                 Normal
@@ -235,7 +235,7 @@ export default function Dashboard() {
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-3xl bg-white shadow-md border border-slate-100 dark:border-none dark:bg-white/5 p-5">
+          <div className="rounded-3xl bg-gradient-to-br from-white to-cyan-50 shadow-md border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/50 dark:to-fuchsia-900/20 p-5">
             <h2 className="mb-4 text-2xl font-semibold">
               {selectedStation ? selectedStation.name : "Estación seleccionada"}
             </h2>
@@ -253,35 +253,35 @@ export default function Dashboard() {
                 </div>
 
                 <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(140px,1fr))]">
-                  <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
+                  <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-cyan-50/50 border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/40 dark:to-fuchsia-900/10 p-4">
                     <div className="text-xs text-slate-700 dark:text-slate-400">Nivel de agua</div>
                     <div className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
                       {selectedWaterLevel} cm
                     </div>
                   </div>
 
-                  <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
+                  <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-cyan-50/50 border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/40 dark:to-fuchsia-900/10 p-4">
                     <div className="text-xs text-slate-700 dark:text-slate-400">Precipitación</div>
                     <div className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
                       {selectedRain} mm
                     </div>
                   </div>
 
-                  <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
+                  <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-cyan-50/50 border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/40 dark:to-fuchsia-900/10 p-4">
                     <div className="text-xs text-slate-700 dark:text-slate-400">Turbidez</div>
                     <div className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
                       {selectedTurbidity}
                     </div>
                   </div>
 
-                  <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
+                  <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-cyan-50/50 border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/40 dark:to-fuchsia-900/10 p-4">
                     <div className="text-xs text-slate-700 dark:text-slate-400">Humedad</div>
                     <div className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
                       {selectedHumidity}
                     </div>
                   </div>
 
-                  <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
+                  <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-cyan-50/50 border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/40 dark:to-fuchsia-900/10 p-4">
                     <div className="text-xs text-slate-700 dark:text-slate-400">Estado</div>
                     <div className="mt-3">
                       <span
@@ -302,7 +302,7 @@ export default function Dashboard() {
             )}
           </div>
 
-          <div className="rounded-3xl bg-white shadow-md border border-slate-100 dark:border-none dark:bg-white/5 p-5">
+          <div className="rounded-3xl bg-gradient-to-br from-white to-cyan-50 shadow-md border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/50 dark:to-fuchsia-900/20 p-5">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-2xl font-semibold">Evolución últimas 24 h</h2>
               <span className="text-xs text-slate-700 dark:text-slate-400">preparado para datos periódicos</span>
@@ -320,7 +320,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
+              <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-cyan-50/50 border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/40 dark:to-fuchsia-900/10 p-4">
                 <svg viewBox="0 0 520 180" className="h-56 w-full">
                   <line x1="0" y1="150" x2="520" y2="150" stroke="#334155" strokeWidth="1" />
                   <line x1="0" y1="110" x2="520" y2="110" stroke="#334155" strokeWidth="1" />
@@ -344,13 +344,13 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <section className="rounded-3xl bg-white shadow-md border border-slate-100 dark:border-none dark:bg-white/5 p-6">
+      <section className="rounded-3xl bg-gradient-to-br from-white to-cyan-50 shadow-md border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/50 dark:to-fuchsia-900/20 p-6">
         <h2 className="text-2xl font-semibold">
           {mode === "real" ? "Modo real" : "Modo despliegue nacional"}
         </h2>
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">
-          <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
+          <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-cyan-50/50 border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/40 dark:to-fuchsia-900/10 p-4">
             <div className="text-base font-semibold">Qué muestra</div>
             <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
               {mode === "real"
@@ -359,7 +359,7 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
+          <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-cyan-50/50 border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/40 dark:to-fuchsia-900/10 p-4">
             <div className="text-base font-semibold">Objetivo</div>
             <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
               {mode === "real"
@@ -368,7 +368,7 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
+          <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-cyan-50/50 border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/40 dark:to-fuchsia-900/10 p-4">
             <div className="text-base font-semibold">Interpretación</div>
             <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
               {mode === "real"

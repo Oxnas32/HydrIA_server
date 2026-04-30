@@ -40,7 +40,7 @@ export default function Alerts() {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-3xl bg-gradient-to-br from-slate-100 via-white to-slate-200 dark:from-indigo-950 dark:via-violet-950 dark:to-fuchsia-950 text-slate-900 dark:text-white p-8">
+      <section className="rounded-3xl bg-gradient-to-br from-white via-cyan-50 to-blue-100 dark:from-indigo-950 dark:via-violet-950 dark:to-fuchsia-950 text-slate-900 dark:text-white p-8">
         <h1 className="text-4xl font-bold text-slate-900 dark:text-white">
           {mode === "real" ? "Alertas" : "Alertas simuladas"}
         </h1>
@@ -52,7 +52,7 @@ export default function Alerts() {
       </section>
 
       {alertsToShow.length === 0 ? (
-        <div className="rounded-3xl bg-white shadow-md border border-slate-100 dark:border-none dark:bg-white/5 p-6 text-slate-800 dark:text-slate-300">
+        <div className="rounded-3xl bg-gradient-to-br from-white to-cyan-50 shadow-md border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/50 dark:to-fuchsia-900/20 p-6 text-slate-800 dark:text-slate-300">
           No hay alertas activas en este momento.
         </div>
       ) : (
@@ -60,7 +60,7 @@ export default function Alerts() {
           {alertsToShow.map((alert: any, index: number) => (
             <article
               key={alert?.id ?? index}
-              className="rounded-3xl bg-white shadow-sm border border-slate-100 dark:border-none dark:bg-white/5 p-5"
+              className="rounded-3xl bg-gradient-to-br from-white to-cyan-50 shadow-sm border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/50 dark:to-fuchsia-900/20 p-5"
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>

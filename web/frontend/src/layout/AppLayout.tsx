@@ -9,7 +9,7 @@ export default function AppLayout() {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-indigo-950 dark:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-cyan-50 text-slate-900 dark:bg-indigo-950 dark:text-white transition-colors duration-300">
       {error && (
         <div className="bg-red-600 px-4 py-2 text-center text-sm text-white">
           {error}

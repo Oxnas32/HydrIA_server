@@ -93,7 +93,7 @@ export default function Stations() {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-3xl bg-gradient-to-br from-slate-100 via-white to-slate-200 dark:from-indigo-950 dark:via-violet-950 dark:to-fuchsia-950 text-slate-900 dark:text-white p-8">
+      <section className="rounded-3xl bg-gradient-to-br from-white via-cyan-50 to-blue-100 dark:from-indigo-950 dark:via-violet-950 dark:to-fuchsia-950 text-slate-900 dark:text-white p-8">
         <h1 className="text-4xl font-bold">
           {mode === "real" ? "Estaciones" : "Estaciones simuladas"}
         </h1>
@@ -105,7 +105,7 @@ export default function Stations() {
       </section>
 
       {stationsToShow.length === 0 ? (
-        <div className="rounded-3xl bg-white shadow-md border border-slate-100 dark:border-none dark:bg-white/5 p-6 text-slate-800 dark:text-slate-300">
+        <div className="rounded-3xl bg-gradient-to-br from-white to-cyan-50 shadow-md border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/50 dark:to-fuchsia-900/20 p-6 text-slate-800 dark:text-slate-300">
           No hay estaciones disponibles en este momento.
         </div>
       ) : (
@@ -122,7 +122,7 @@ export default function Stations() {
               <Link
                 key={station?.id ?? index}
                 to={`/stations/${station?.id ?? index}`}
-                className="rounded-3xl bg-white shadow-sm border border-slate-100 hover:bg-slate-50 dark:border-none dark:bg-white/5 dark:hover:bg-white/10 p-5 transition-colors"
+                className="rounded-3xl bg-gradient-to-br from-white to-cyan-50 shadow-sm border border-slate-100 hover:to-cyan-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/50 dark:to-fuchsia-900/20 dark:hover:to-fuchsia-900/40 p-5 transition-colors"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -148,28 +148,28 @@ export default function Stations() {
                 </div>
 
                 <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
-                  <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
+                  <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-cyan-50/50 border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/40 dark:to-fuchsia-900/10 p-4">
                     <div className="text-xs text-slate-700 dark:text-slate-400">Nivel</div>
                     <div className="mt-2 text-xl font-semibold text-slate-900 dark:text-white">
                       {waterLevel != null ? `${waterLevel} cm` : "—"}
                     </div>
                   </div>
 
-                  <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
+                  <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-cyan-50/50 border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/40 dark:to-fuchsia-900/10 p-4">
                     <div className="text-xs text-slate-700 dark:text-slate-400">Lluvia</div>
                     <div className="mt-2 text-xl font-semibold text-slate-900 dark:text-white">
                       {rain != null ? `${rain} mm` : "—"}
                     </div>
                   </div>
 
-                  <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
+                  <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-cyan-50/50 border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/40 dark:to-fuchsia-900/10 p-4">
                     <div className="text-xs text-slate-700 dark:text-slate-400">Turbidez</div>
                     <div className="mt-2 text-xl font-semibold text-slate-900 dark:text-white">
                       {turbidity != null ? turbidity : "—"}
                     </div>
                   </div>
 
-                  <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
+                  <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-cyan-50/50 border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/40 dark:to-fuchsia-900/10 p-4">
                     <div className="text-xs text-slate-700 dark:text-slate-400">Humedad</div>
                     <div className="mt-2 text-xl font-semibold text-slate-900 dark:text-white">
                       {humidity != null ? humidity : "—"}
