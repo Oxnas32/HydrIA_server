@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { InfluxDB, Point, flux } = require("@influxdata/influxdb-client");
+const { evaluateRisk } = require("./riskEngine");
 
 const INFLUX_URL = "http://127.0.0.1:8086";
 const INFLUX_TOKEN = "HYDRIA_DEV_TOKEN_1234567890";
@@ -9,26 +10,70 @@ const INFLUX_BUCKET = "telemetry";
 
 const influx = new InfluxDB({ url: INFLUX_URL, token: INFLUX_TOKEN });
 
-// Write API (telemetría)
 const writeApi = influx.getWriteApi(INFLUX_ORG, INFLUX_BUCKET);
 writeApi.useDefaultTags({ app: "HydrIA" });
 
-// Query API (lecturas para dashboard)
 const queryApi = influx.getQueryApi(INFLUX_ORG);
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+function getRecentHistory(nodeId) { // esta función obtiene el historial de las últimas 6 horas para un nodo específico, agrupando los datos por timestamp y asegurándose de que cada registro contenga los campos relevantes (waterLevelCm, rainMm, turbidity, humidity). Luego ordena los registros por tiempo y devuelve solo los últimos 8 registros para su análisis en la función de evaluación de riesgo.
+  return new Promise((resolve, reject) => {
+    const q = flux`from(bucket: "${INFLUX_BUCKET}")
+      |> range(start: -6h)
+      |> filter(fn: (r) => r._measurement == "telemetry")
+      |> filter(fn: (r) => r.nodeId == "${nodeId}")
+      |> filter(fn: (r) => r._field == "waterLevelCm" or r._field == "rainMm" or r._field == "turbidity" or r._field == "humidity")
+      |> sort(columns: ["_time"])`;
+
+    const rows = [];
+
+    queryApi.queryRows(q, {
+      next: (row, tableMeta) => rows.push(tableMeta.toObject(row)),
+      error: (err) => reject(err),
+      complete: () => {
+        const historyMap = {};
+
+        for (const r of rows) {
+          const time = r._time;
+
+          if (!historyMap[time]) {
+            historyMap[time] = {
+              time,
+              waterLevelCm: null,
+              rainMm: null,
+              turbidity: null,
+              humidity: null,
+            };
+          }
+
+          if (r._field === "waterLevelCm") historyMap[time].waterLevelCm = r._value;
+          if (r._field === "rainMm") historyMap[time].rainMm = r._value;
+          if (r._field === "turbidity") historyMap[time].turbidity = r._value;
+          if (r._field === "humidity") historyMap[time].humidity = r._value;
+        }
+
+        const result = Object.values(historyMap).sort(
+          (a, b) => new Date(a.time) - new Date(b.time)
+        );
+
+        resolve(result.slice(-8));
+      },
+    });
+  });
+}
+
 let sseClients = [];
+
 app.get("/events", (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
   res.flushHeaders();
 
-  // Send an initial ping just to confirm connection
-  res.write("data: {\"type\": \"ping\"}\n\n");
+  res.write('data: {"type":"ping"}\n\n');
 
   sseClients.push(res);
 
@@ -49,15 +94,18 @@ app.get("/stations", (req, res) => {
     |> last()`;
 
   const rows = [];
+
   queryApi.queryRows(q, {
     next: (row, tableMeta) => rows.push(tableMeta.toObject(row)),
     error: (err) => res.status(500).json({ ok: false, error: String(err) }),
     complete: () => {
       const stationsMap = {};
+
       for (const r of rows) {
         if (!stationsMap[r.nodeId]) {
           stationsMap[r.nodeId] = { id: r.nodeId };
         }
+
         stationsMap[r.nodeId].time = r._time;
         if (r.site) stationsMap[r.nodeId].name = r.site;
         if (r._field === "waterLevelCm") stationsMap[r.nodeId].waterLevelCm = r._value;
@@ -68,19 +116,30 @@ app.get("/stations", (req, res) => {
         if (r._field === "lng") stationsMap[r.nodeId].lng = r._value;
         if (r.province) stationsMap[r.nodeId].province = r.province;
       }
-      
+
       const results = Object.values(stationsMap);
-      
+
       for (const s of results) {
-        let risk = "OK";
-        if (s.waterLevelCm && s.waterLevelCm > 150) risk = "WARN";
-        if (s.waterLevelCm && s.waterLevelCm > 200) risk = "ALERT";
-        s.risk = risk;
+        const riskResult = evaluateRisk(
+          {
+            waterLevelCm: s.waterLevelCm,
+            rainMm: s.rainMm,
+            turbidity: s.turbidity,
+            humidity: s.humidity,
+          },
+          []
+        );
+
+        s.risk = riskResult.risk;
+        s.riskLabel = riskResult.label;
+        s.riskScore = riskResult.score;
+        s.riskSummary = riskResult.summary;
+        s.riskReasons = riskResult.reasons;
         s.updated = "ahora mismo";
       }
-      
+
       res.json({ ok: true, data: results });
-    }
+    },
   });
 });
 
@@ -108,13 +167,15 @@ app.get("/stations/:id/history", (req, res) => {
             time,
             waterLevelCm: null,
             rainMm: null,
-            batteryV: null,
+            turbidity: null,
+            humidity: null,
           };
         }
 
         if (r._field === "waterLevelCm") historyMap[time].waterLevelCm = r._value;
         if (r._field === "rainMm") historyMap[time].rainMm = r._value;
-        if (r._field === "batteryV") historyMap[time].batteryV = r._value;
+        if (r._field === "turbidity") historyMap[time].turbidity = r._value;
+        if (r._field === "humidity") historyMap[time].humidity = r._value;
       }
 
       const result = Object.values(historyMap).sort(
@@ -128,6 +189,7 @@ app.get("/stations/:id/history", (req, res) => {
 
 app.get("/latest", (req, res) => {
   const reqNodeId = req.query.nodeId || "A1";
+
   const q = flux`from(bucket: "${INFLUX_BUCKET}")
     |> range(start: -24h)
     |> filter(fn: (r) => r._measurement == "telemetry")
@@ -173,17 +235,21 @@ app.get("/latest", (req, res) => {
 
 app.post("/telemetry/notify_delete", (req, res) => {
   const { nodeId, all } = req.body;
-  const payload = { 
-    ok: true, 
-    source: "database", 
-    action: all ? "delete_all" : "delete", 
-    nodeId: nodeId 
+
+  const payload = {
+    ok: true,
+    source: "database",
+    action: all ? "delete_all" : "delete",
+    nodeId,
   };
+
   sseClients.forEach((client) => {
     client.write(`data: ${JSON.stringify(payload)}\n\n`);
   });
+
   res.json({ ok: true });
 });
+
 app.post("/telemetry", async (req, res) => {
   const { nodeId, site, waterLevelCm, rainMm, turbidity, humidity, lat, lng, province } = req.body;
 
@@ -201,10 +267,10 @@ app.post("/telemetry", async (req, res) => {
   if (typeof rainMm !== "number" || isNaN(rainMm)) {
     errors.push("'rainMm' must be a valid number.");
   }
-  if (turbidity !== undefined && (typeof turbidity !== "number" || isNaN(turbidity))) {
+  if (typeof turbidity !== "number" || isNaN(turbidity)) {
     errors.push("'turbidity' must be a valid number.");
   }
-  if (humidity !== undefined && (typeof humidity !== "number" || isNaN(humidity))) {
+  if (typeof humidity !== "number" || isNaN(humidity)) {
     errors.push("'humidity' must be a valid number.");
   }
   if (lat !== undefined && (typeof lat !== "number" || isNaN(lat))) {
@@ -222,10 +288,10 @@ app.post("/telemetry", async (req, res) => {
     .tag("nodeId", String(nodeId))
     .tag("site", String(site))
     .floatField("waterLevelCm", Number(waterLevelCm))
-    .floatField("rainMm", Number(rainMm));
-    
-  if (turbidity !== undefined) p.floatField("turbidity", Number(turbidity));
-  if (humidity !== undefined) p.floatField("humidity", Number(humidity));
+    .floatField("rainMm", Number(rainMm))
+    .floatField("turbidity", Number(turbidity))
+    .floatField("humidity", Number(humidity));
+
   if (lat !== undefined) p.floatField("lat", Number(lat));
   if (lng !== undefined) p.floatField("lng", Number(lng));
   if (province) p.tag("province", String(province));
@@ -235,10 +301,20 @@ app.post("/telemetry", async (req, res) => {
   writeApi.writePoint(p);
 
   try {
-    // Wait for the point to be written to the database
     await writeApi.flush();
 
-    // Now read the same data back
+    const history = await getRecentHistory(nodeId);
+
+    const riskResult = evaluateRisk(
+      {
+        waterLevelCm,
+        rainMm,
+        turbidity,
+        humidity,
+      },
+      history
+    );
+
     const q = flux`from(bucket: "${INFLUX_BUCKET}")
       |> range(start: -1m)
       |> filter(fn: (r) => r._measurement == "telemetry")
@@ -247,18 +323,25 @@ app.post("/telemetry", async (req, res) => {
       |> last()`;
 
     const rows = [];
+
     queryApi.queryRows(q, {
       next: (row, tableMeta) => rows.push(tableMeta.toObject(row)),
-      error: (err) => res.status(500).json({ ok: false, error: "Read error", details: String(err) }),
+      error: (err) =>
+        res.status(500).json({ ok: false, error: "Read error", details: String(err) }),
       complete: () => {
         const out = {
-          nodeId: nodeId,
-          site: site,
+          nodeId,
+          site,
           time: null,
           waterLevelCm: null,
           rainMm: null,
           turbidity: null,
           humidity: null,
+          risk: null,
+          riskLabel: null,
+          riskScore: null,
+          riskSummary: null,
+          riskReasons: [],
         };
 
         for (const r of rows) {
@@ -273,10 +356,14 @@ app.post("/telemetry", async (req, res) => {
           if (r.province) out.province = r.province;
         }
 
-        // Return the exact data read from the database
+        out.risk = riskResult.risk;
+        out.riskLabel = riskResult.label;
+        out.riskScore = riskResult.score;
+        out.riskSummary = riskResult.summary;
+        out.riskReasons = riskResult.reasons;
+
         const payload = { ok: true, source: "database", data: out };
-        
-        // Push the new data to all connected frontend clients
+
         sseClients.forEach((client) => {
           client.write(`data: ${JSON.stringify(payload)}\n\n`);
         });

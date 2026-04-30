@@ -13,6 +13,12 @@ interface Station {
   turbidity?: number;
   humidity?: number;
   risk?: string;
+  riskLabel?: string;
+  riskScore?: number;
+  riskSummary?: string;
+  riskReasons?: string[];
+  time?: string;
+  updated?: string;
 }
 
 interface AlertItem {
@@ -35,34 +41,23 @@ const TelemetryContext = createContext<TelemetryContextType | undefined>(
 
 function buildAlerts(stations: Station[]) {
   return stations
-    .filter((station) => (station.waterLevelCm ?? 0) >= 80)
-    .map((station) => {
-      const isAlert = (station.waterLevelCm ?? 0) >= 120;
-
-      return {
-        id: `alert-${station.id}`,
-        title: isAlert
+    .filter((station) => station.risk === "WARN" || station.risk === "ALERT")
+    .map((station) => ({
+      id: `alert-${station.id}`,
+      title:
+        station.risk === "ALERT"
           ? `Alerta en ${station.name}`
           : `Vigilancia en ${station.name}`,
-        description: isAlert
-          ? "Se ha detectado un nivel elevado en la estación."
-          : "La estación requiere seguimiento.",
-        level: isAlert ? "Alerta" : "Vigilancia",
-        stationName: station.name,
-      };
-    });
-}
-
-interface TelemetryData {
-  nodeId: string;
-  site?: string;
-  province?: string;
-  lat?: number;
-  lng?: number;
-  waterLevelCm: number;
-  rainMm: number;
-  turbidity: number;
-  humidity: number;
+      description:
+        station.riskSummary ||
+        (station.risk === "ALERT"
+          ? "Se ha detectado una situación de riesgo en la estación."
+          : "La estación requiere seguimiento."),
+      level:
+        station.riskLabel ||
+        (station.risk === "ALERT" ? "Alerta" : "Vigilancia"),
+      stationName: station.name,
+    }));
 }
 
 export function TelemetryProvider({ children }: { children: ReactNode }) {
@@ -87,6 +82,12 @@ export function TelemetryProvider({ children }: { children: ReactNode }) {
             turbidity: item.turbidity,
             humidity: item.humidity,
             risk: item.risk,
+            riskLabel: item.riskLabel,
+            riskScore: item.riskScore,
+            riskSummary: item.riskSummary,
+            riskReasons: item.riskReasons ?? [],
+            time: item.time,
+            updated: item.updated,
           }));
 
           setStations(newStations);
@@ -98,66 +99,77 @@ export function TelemetryProvider({ children }: { children: ReactNode }) {
         setError("No se ha podido conectar con la API.");
       });
 
-    // Sub to Server Sent Events for Live Updates
     const eventSource = new EventSource("http://localhost:3001/events");
 
     eventSource.onmessage = (event) => {
       try {
         const payload = JSON.parse(event.data);
-        if (payload && payload.ok && payload.source === "database") {
-          // Dynamic deletion support
-          if (payload.action === "delete_all") {
-            setStations([]);
-            setAlerts([]);
-            return;
-          }
-          if (payload.action === "delete" && payload.nodeId) {
-            setStations((prev) => {
-              const updated = prev.filter((s) => s.id !== payload.nodeId);
-              setAlerts(buildAlerts(updated));
-              return updated;
-            });
-            return;
-          }
 
-          if (!payload.data) return;
-          const newData = payload.data as TelemetryData;
+        if (!(payload?.ok && payload.source === "database")) return;
 
-          let newRisk = "OK";
-          if (newData.waterLevelCm > 150) newRisk = "WARN";
-          if (newData.waterLevelCm > 200) newRisk = "ALERT";
+        if (payload.action === "delete_all") {
+          setStations([]);
+          setAlerts([]);
+          return;
+        }
 
+        if (payload.action === "delete" && payload.nodeId) {
           setStations((prev) => {
-            const next = [...prev];
-            const idx = next.findIndex(s => s.id === newData.nodeId);
-            
-            const freshStation: Station = {
-              id: newData.nodeId,
-              name: newData.site || (idx >= 0 ? next[idx].name : newData.nodeId),
-              province: newData.province || (idx >= 0 ? next[idx].province : "Desconocida"),
-              location: newData.province || (idx >= 0 ? next[idx].location : "Desconocida"),
-              lat: newData.lat ?? (idx >= 0 ? next[idx].lat : undefined),
-              lng: newData.lng ?? (idx >= 0 ? next[idx].lng : undefined),
-              waterLevelCm: newData.waterLevelCm,
-              rainMm: newData.rainMm,
-              turbidity: newData.turbidity,
-              humidity: newData.humidity,
-              risk: newRisk,
-            };
-
-            if (idx >= 0) {
-              next[idx] = freshStation;
-            } else {
-              next.push(freshStation);
-            }
-            
+            const next = prev.filter((s) => s.id !== String(payload.nodeId));
             setAlerts(buildAlerts(next));
             return next;
           });
+          return;
         }
+
+        if (!payload.data) return;
+        const item = payload.data;
+
+        setStations((prevStations) => {
+          const newStation: Station = {
+            id: String(item.nodeId),
+            name: item.site || item.nodeId,
+            province: item.province,
+            location: item.location ?? item.province,
+            lat: item.lat,
+            lng: item.lng,
+            waterLevelCm: item.waterLevelCm,
+            rainMm: item.rainMm,
+            turbidity: item.turbidity,
+            humidity: item.humidity,
+            risk: item.risk,
+            riskLabel: item.riskLabel,
+            riskScore: item.riskScore,
+            riskSummary: item.riskSummary,
+            riskReasons: item.riskReasons ?? [],
+            time: item.time,
+            updated: "ahora mismo",
+          };
+
+          const exists = prevStations.some(
+            (s) => s.id === String(item.nodeId)
+          );
+
+          const nextStations = exists
+            ? prevStations.map((station) =>
+                station.id === String(item.nodeId)
+                  ? { ...station, ...newStation }
+                  : station
+              )
+            : [...prevStations, newStation];
+
+          setAlerts(buildAlerts(nextStations));
+          setError(null);
+
+          return nextStations;
+        });
       } catch (err) {
-        console.error("SSE Error:", err);
+        console.error("Failed to parse SSE payload:", err);
       }
+    };
+
+    eventSource.onerror = () => {
+      setError("Conexión en tiempo real no disponible.");
     };
 
     return () => {
