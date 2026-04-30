@@ -57,23 +57,26 @@ export default function Dashboard() {
         { id: "sim-2", name: "Barcelona", location: "Barcelona", waterLevelCm: 135, rainMm: 24, turbidity: 81, humidity: 86, riskLabel: "Alerta", riskSummary: "Nivel muy alto y lluvia significativa" },
       ];
 
-  const allStationsForSelection = mode === "real"
-    ? stations
-    : [
-        { id: "sim-1", name: "Madrid", location: "Madrid", lat: 40.4168, lng: -3.7038, waterLevelCm: 110, rainMm: 18, turbidity: 62, humidity: 74, riskLabel: "Vigilancia", riskSummary: "Nivel elevado y lluvia moderada" },
-        { id: "sim-2", name: "Barcelona", location: "Barcelona", lat: 41.3874, lng: 2.1686, waterLevelCm: 135, rainMm: 24, turbidity: 81, humidity: 86, riskLabel: "Alerta", riskSummary: "Nivel muy alto y lluvia significativa" },
-        { id: "sim-3", name: "Valencia", location: "Valencia", lat: 39.4699, lng: -0.3763, waterLevelCm: 95, rainMm: 14, turbidity: 55, humidity: 69, riskLabel: "Vigilancia", riskSummary: "Nivel por encima de lo habitual" },
-        { id: "sim-4", name: "Sevilla", location: "Sevilla", lat: 37.3891, lng: -5.9845, waterLevelCm: 82, rainMm: 11, turbidity: 49, humidity: 66, riskLabel: "Vigilancia", riskSummary: "Crecimiento reciente del nivel" },
-      ];
+  const allStationsForSelection = useMemo(() => {
+    return mode === "real"
+      ? stations
+      : [
+          { id: "sim-1", name: "Madrid", location: "Madrid", lat: 40.4168, lng: -3.7038, waterLevelCm: 110, rainMm: 18, turbidity: 62, humidity: 74, riskLabel: "Vigilancia", riskSummary: "Nivel elevado y lluvia moderada" },
+          { id: "sim-2", name: "Barcelona", location: "Barcelona", lat: 41.3874, lng: 2.1686, waterLevelCm: 135, rainMm: 24, turbidity: 81, humidity: 86, riskLabel: "Alerta", riskSummary: "Nivel muy alto y lluvia significativa" },
+          { id: "sim-3", name: "Valencia", location: "Valencia", lat: 39.4699, lng: -0.3763, waterLevelCm: 95, rainMm: 14, turbidity: 55, humidity: 69, riskLabel: "Vigilancia", riskSummary: "Nivel por encima de lo habitual" },
+          { id: "sim-4", name: "Sevilla", location: "Sevilla", lat: 37.3891, lng: -5.9845, waterLevelCm: 82, rainMm: 11, turbidity: 49, humidity: 66, riskLabel: "Vigilancia", riskSummary: "Crecimiento reciente del nivel" },
+        ];
+  }, [mode, stations]);
 
   const [selectedStation, setSelectedStation] = useState<any>(null);
 
   useEffect(() => {
-    if (allStationsForSelection.length > 0) {
-      setSelectedStation(allStationsForSelection[0]);
-    } else {
-      setSelectedStation(null);
-    }
+    setSelectedStation((prev: any) => {
+      if (!prev || !allStationsForSelection.find((s: any) => s.id === prev.id)) {
+        return allStationsForSelection.length > 0 ? allStationsForSelection[0] : null;
+      }
+      return allStationsForSelection.find((s: any) => s.id === prev.id) || prev;
+    });
   }, [mode, allStationsForSelection]);
 
   const selectedWaterLevel = selectedStation?.waterLevelCm ?? 0;
@@ -106,7 +109,7 @@ export default function Dashboard() {
                 : "Simulación de despliegue nacional"}
             </h1>
 
-            <p className="mt-3 max-w-3xl text-slate-600 dark:text-slate-200">
+            <p className="mt-3 max-w-3xl text-slate-800 dark:text-slate-200">
               {mode === "real"
                 ? "Consulta pública del estado actual de las estaciones reales del proyecto."
                 : "Vista simulada de cómo podría escalarse la plataforma a nivel nacional."}
@@ -130,7 +133,7 @@ export default function Dashboard() {
 
           <div className="grid grid-cols-2 gap-4 pt-4 lg:grid-cols-4">
             <div className="rounded-2xl bg-white shadow-sm border border-slate-100 dark:border-none dark:bg-white/10 p-4">
-              <div className="text-sm text-slate-500 dark:text-slate-300">
+              <div className="text-sm text-slate-700 dark:text-slate-300">
                 {mode === "real" ? "Estaciones activas" : "Estaciones simuladas"}
               </div>
               <div className="mt-2 text-2xl font-semibold">
@@ -139,7 +142,7 @@ export default function Dashboard() {
             </div>
 
             <div className="rounded-2xl bg-white shadow-sm border border-slate-100 dark:border-none dark:bg-white/10 p-4">
-              <div className="text-sm text-slate-500 dark:text-slate-300">
+              <div className="text-sm text-slate-700 dark:text-slate-300">
                 {mode === "real" ? "Alertas activas" : "Alertas estimadas"}
               </div>
               <div className="mt-2 text-2xl font-semibold">
@@ -148,14 +151,14 @@ export default function Dashboard() {
             </div>
 
             <div className="rounded-2xl bg-white shadow-sm border border-slate-100 dark:border-none dark:bg-white/10 p-4">
-              <div className="text-sm text-slate-500 dark:text-slate-300">Áreas cubiertas</div>
+              <div className="text-sm text-slate-700 dark:text-slate-300">Áreas cubiertas</div>
               <div className="mt-2 text-sm font-medium text-slate-900 dark:text-white">
                 {mode === "real" ? (coveredAreas.length > 0 ? coveredAreas.join(", ") : "Sin datos") : "España"}
               </div>
             </div>
 
             <div className="rounded-2xl bg-white shadow-sm border border-slate-100 dark:border-none dark:bg-white/10 p-4">
-              <div className="text-sm text-slate-500 dark:text-slate-300">Acceso</div>
+              <div className="text-sm text-slate-700 dark:text-slate-300">Acceso</div>
               <div className="mt-2 text-2xl font-semibold">Público</div>
             </div>
           </div>
@@ -214,7 +217,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="mt-11 flex justify-end text-right text-sm text-slate-600 dark:text-slate-300">
+            <div className="mt-11 flex justify-end text-right text-sm text-slate-800 dark:text-slate-300">
               <span className="font-medium text-slate-900 dark:text-white">Última actualización:</span>{" "}
               {mode === "real"
                 ? stations.length > 0
@@ -240,46 +243,46 @@ export default function Dashboard() {
             {selectedStation ? (
               <div className="space-y-5">
                 <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Ubicación</p>
+                  <p className="text-sm text-slate-800 dark:text-slate-400">Ubicación</p>
                   <p className="mt-1 text-lg font-medium text-slate-900 dark:text-white">
                     {selectedStation.location ?? selectedStation.province ?? "Sin ubicación"}
                   </p>
-                  <p className="mt-3 text-sm text-slate-300">
+                  <p className="mt-3 text-sm text-slate-700 dark:text-slate-300">
                     {selectedSummary}
                   </p>
                 </div>
 
                 <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(140px,1fr))]">
                   <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
-                    <div className="text-xs text-slate-500 dark:text-slate-400">Nivel de agua</div>
+                    <div className="text-xs text-slate-700 dark:text-slate-400">Nivel de agua</div>
                     <div className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
                       {selectedWaterLevel} cm
                     </div>
                   </div>
 
                   <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
-                    <div className="text-xs text-slate-500 dark:text-slate-400">Precipitación</div>
+                    <div className="text-xs text-slate-700 dark:text-slate-400">Precipitación</div>
                     <div className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
                       {selectedRain} mm
                     </div>
                   </div>
 
                   <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
-                    <div className="text-xs text-slate-500 dark:text-slate-400">Turbidez</div>
+                    <div className="text-xs text-slate-700 dark:text-slate-400">Turbidez</div>
                     <div className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
                       {selectedTurbidity}
                     </div>
                   </div>
 
                   <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
-                    <div className="text-xs text-slate-500 dark:text-slate-400">Humedad</div>
+                    <div className="text-xs text-slate-700 dark:text-slate-400">Humedad</div>
                     <div className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
                       {selectedHumidity}
                     </div>
                   </div>
 
                   <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
-                    <div className="text-xs text-slate-500 dark:text-slate-400">Estado</div>
+                    <div className="text-xs text-slate-700 dark:text-slate-400">Estado</div>
                     <div className="mt-3">
                       <span
                         className={`inline-flex rounded-full px-4 py-2 text-sm font-semibold ${getStatusColor(
@@ -293,7 +296,7 @@ export default function Dashboard() {
                 </div>
               </div>
             ) : (
-              <p className="text-slate-300">
+              <p className="text-slate-700 dark:text-slate-300">
                 Selecciona una estación en el mapa para ver sus indicadores.
               </p>
             )}
@@ -302,11 +305,11 @@ export default function Dashboard() {
           <div className="rounded-3xl bg-white shadow-md border border-slate-100 dark:border-none dark:bg-white/5 p-5">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-2xl font-semibold">Evolución últimas 24 h</h2>
-              <span className="text-xs text-slate-500 dark:text-slate-400">preparado para datos periódicos</span>
+              <span className="text-xs text-slate-700 dark:text-slate-400">preparado para datos periódicos</span>
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center justify-end gap-4 text-sm text-slate-300">
+              <div className="flex items-center justify-end gap-4 text-sm text-slate-700 dark:text-slate-300">
                 <div className="flex items-center gap-2">
                   <span className="inline-block h-2.5 w-2.5 rounded-full bg-cyan-400" />
                   Nivel
@@ -349,7 +352,7 @@ export default function Dashboard() {
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
             <div className="text-base font-semibold">Qué muestra</div>
-            <p className="mt-2 text-sm text-slate-300">
+            <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
               {mode === "real"
                 ? "Se muestran únicamente las estaciones reales que están dadas de alta en el sistema."
                 : "Se muestra una representación simulada de cómo podría verse la plataforma con un despliegue extendido por España."}
@@ -358,7 +361,7 @@ export default function Dashboard() {
 
           <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
             <div className="text-base font-semibold">Objetivo</div>
-            <p className="mt-2 text-sm text-slate-300">
+            <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
               {mode === "real"
                 ? "Permitir una consulta pública del estado actual del sistema realmente instalado."
                 : "Enseñar de forma visual la escalabilidad del proyecto y su posible extensión a nivel nacional."}
@@ -367,7 +370,7 @@ export default function Dashboard() {
 
           <div className="rounded-2xl bg-slate-50 border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
             <div className="text-base font-semibold">Interpretación</div>
-            <p className="mt-2 text-sm text-slate-300">
+            <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
               {mode === "real"
                 ? "Los datos, estaciones y alertas proceden del backend y representan el estado operativo actual."
                 : "Los puntos, estaciones y alertas se generan de forma simulada para ilustrar un escenario futuro de despliegue."}
