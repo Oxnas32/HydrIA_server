@@ -45,22 +45,30 @@ export default function StationDetail() {
 
   useEffect(() => {
     if (!id) return;
-
-    fetch(`http://localhost:3001/stations/${id}/history`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.ok) {
-          setHistory(data.data || []);
-          setHistoryError(null);
-        } else {
+  
+    const loadHistory = () => {
+      fetch(`http://localhost:3001/stations/${id}/history`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.ok) {
+            setHistory(data.data || []);
+            setHistoryError(null);
+          } else {
+            setHistory([]);
+            setHistoryError("No se pudo cargar el histórico.");
+          }
+        })
+        .catch(() => {
           setHistory([]);
           setHistoryError("No se pudo cargar el histórico.");
-        }
-      })
-      .catch(() => {
-        setHistory([]);
-        setHistoryError("No se pudo cargar el histórico.");
-      });
+        });
+    };
+  
+    loadHistory();
+  
+    const interval = setInterval(loadHistory, 3000);
+  
+    return () => clearInterval(interval);
   }, [id]);
 
   if (!station) {
@@ -81,7 +89,9 @@ export default function StationDetail() {
   const rain = station?.rainMm;
   const turbidity = station?.turbidity;
   const humidity = station?.humidity;
-  const status = getStatus(waterLevel);
+  const status = station?.riskLabel ?? getStatus(waterLevel);
+  const summary = station?.riskSummary ?? "Sin explicación disponible";
+  const reasons = station?.riskReasons ?? [];
 
   const waterSeries = useMemo(
     () =>
@@ -121,6 +131,9 @@ export default function StationDetail() {
             <p className="mt-3 text-slate-300">
               {(station?.location ?? station?.province ?? "Sin ubicación")} - {station?.id ?? "—"}
             </p>
+            <p className="mt-3 max-w-3xl text-sm text-slate-200">
+              {summary}
+            </p>
           </div>
 
           <span
@@ -151,16 +164,35 @@ export default function StationDetail() {
         <div className="rounded-3xl bg-white/5 p-5">
           <div className="text-sm text-slate-400">Turbidez</div>
           <div className="mt-2 text-3xl font-semibold">
-            {turbidity != null ? `${turbidity} NTU` : "—"}
+            {turbidity != null ? turbidity : "—"}
           </div>
         </div>
 
         <div className="rounded-3xl bg-white/5 p-5">
           <div className="text-sm text-slate-400">Humedad</div>
           <div className="mt-2 text-3xl font-semibold">
-            {humidity != null ? `${humidity} %` : "—"}
+            {humidity != null ? humidity : "—"}
           </div>
         </div>
+      </section>
+
+      <section className="rounded-3xl bg-white/5 p-6">
+        <h2 className="text-2xl font-semibold">Motivos de evaluación</h2>
+
+        {reasons.length === 0 ? (
+          <p className="mt-4 text-slate-300">No hay motivos detallados disponibles.</p>
+        ) : (
+          <div className="mt-4 flex flex-wrap gap-3">
+            {reasons.map((reason: string, index: number) => (
+              <span
+                key={index}
+                className="rounded-full bg-white/10 px-4 py-2 text-sm text-slate-200"
+              >
+                {reason}
+              </span>
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="rounded-3xl bg-white/5 p-6">
@@ -227,7 +259,7 @@ export default function StationDetail() {
       <section className="rounded-3xl bg-white/5 p-6">
         <h2 className="text-2xl font-semibold">Baremo de referencia</h2>
 
-        <div className="mt-5 grid gap-4 md:grid-cols-3">
+        <div className="mt-5 grid gap-4 md:grid-cols-4">
           <div className="rounded-2xl bg-slate-900 p-4">
             <div className="font-semibold text-white">Nivel de agua</div>
             <p className="mt-2 text-sm text-slate-300">Normal: &lt; 80 cm</p>
@@ -243,10 +275,17 @@ export default function StationDetail() {
           </div>
 
           <div className="rounded-2xl bg-slate-900 p-4">
-            <div className="font-semibold text-white">Batería</div>
-            <p className="mt-2 text-sm text-slate-300">Normal: ≥ 3.7 V</p>
-            <p className="text-sm text-slate-300">Baja: 3.5 - 3.69 V</p>
-            <p className="text-sm text-slate-300">Crítica: &lt; 3.5 V</p>
+            <div className="font-semibold text-white">Turbidez</div>
+            <p className="mt-2 text-sm text-slate-300">Normal: &lt; 50</p>
+            <p className="text-sm text-slate-300">Vigilancia: 50 - 79</p>
+            <p className="text-sm text-slate-300">Alta: ≥ 80</p>
+          </div>
+
+          <div className="rounded-2xl bg-slate-900 p-4">
+            <div className="font-semibold text-white">Humedad</div>
+            <p className="mt-2 text-sm text-slate-300">Normal: &lt; 70</p>
+            <p className="text-sm text-slate-300">Elevada: 70 - 84</p>
+            <p className="text-sm text-slate-300">Muy alta: ≥ 85</p>
           </div>
         </div>
       </section>

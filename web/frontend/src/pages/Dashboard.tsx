@@ -3,6 +3,9 @@ import { useEffect, useMemo, useState } from "react";
 import NationalMap from "../components/NationalMap";
 import { useTelemetry } from "../context/TelemetryContext";
 import { useViewMode } from "../context/ViewModeContext";
+import dropGreen from "../assets/drop-green.png";
+import dropOrange from "../assets/drop-orange.png";
+import dropRed from "../assets/drop-red.png";
 
 function getStatus(level?: number) {
   if (level == null) return "Sin datos";
@@ -50,17 +53,17 @@ export default function Dashboard() {
   const shownStations = mode === "real"
     ? stations.slice(0, 2)
     : [
-        { id: "sim-1", name: "Madrid", location: "Madrid", waterLevelCm: 110, rainMm: 18, turbidity: 2.1, humidity: 45 },
-        { id: "sim-2", name: "Barcelona", location: "Barcelona", waterLevelCm: 135, rainMm: 24, turbidity: 3.5, humidity: 62 },
+        { id: "sim-1", name: "Madrid", location: "Madrid", waterLevelCm: 110, rainMm: 18, turbidity: 62, humidity: 74, riskLabel: "Vigilancia", riskSummary: "Nivel elevado y lluvia moderada" },
+        { id: "sim-2", name: "Barcelona", location: "Barcelona", waterLevelCm: 135, rainMm: 24, turbidity: 81, humidity: 86, riskLabel: "Alerta", riskSummary: "Nivel muy alto y lluvia significativa" },
       ];
 
   const allStationsForSelection = mode === "real"
     ? stations
     : [
-        { id: "sim-1", name: "Madrid", location: "Madrid", lat: 40.4168, lng: -3.7038, waterLevelCm: 110, rainMm: 18, turbidity: 2.1, humidity: 45 },
-        { id: "sim-2", name: "Barcelona", location: "Barcelona", lat: 41.3874, lng: 2.1686, waterLevelCm: 135, rainMm: 24, turbidity: 3.5, humidity: 62 },
-        { id: "sim-3", name: "Valencia", location: "Valencia", lat: 39.4699, lng: -0.3763, waterLevelCm: 95, rainMm: 14, turbidity: 1.8, humidity: 55 },
-        { id: "sim-4", name: "Sevilla", location: "Sevilla", lat: 37.3891, lng: -5.9845, waterLevelCm: 82, rainMm: 11, turbidity: 4.2, humidity: 38 },
+        { id: "sim-1", name: "Madrid", location: "Madrid", lat: 40.4168, lng: -3.7038, waterLevelCm: 110, rainMm: 18, turbidity: 62, humidity: 74, riskLabel: "Vigilancia", riskSummary: "Nivel elevado y lluvia moderada" },
+        { id: "sim-2", name: "Barcelona", location: "Barcelona", lat: 41.3874, lng: 2.1686, waterLevelCm: 135, rainMm: 24, turbidity: 81, humidity: 86, riskLabel: "Alerta", riskSummary: "Nivel muy alto y lluvia significativa" },
+        { id: "sim-3", name: "Valencia", location: "Valencia", lat: 39.4699, lng: -0.3763, waterLevelCm: 95, rainMm: 14, turbidity: 55, humidity: 69, riskLabel: "Vigilancia", riskSummary: "Nivel por encima de lo habitual" },
+        { id: "sim-4", name: "Sevilla", location: "Sevilla", lat: 37.3891, lng: -5.9845, waterLevelCm: 82, rainMm: 11, turbidity: 49, humidity: 66, riskLabel: "Vigilancia", riskSummary: "Crecimiento reciente del nivel" },
       ];
 
   const [selectedStation, setSelectedStation] = useState<any>(null);
@@ -77,7 +80,8 @@ export default function Dashboard() {
   const selectedRain = selectedStation?.rainMm ?? 0;
   const selectedTurbidity = selectedStation?.turbidity ?? 0;
   const selectedHumidity = selectedStation?.humidity ?? 0;
-  const selectedStatus = getStatus(selectedWaterLevel);
+  const selectedStatus = selectedStation?.riskLabel ?? getStatus(selectedWaterLevel);
+  const selectedSummary = selectedStation?.riskSummary ?? "Sin explicación disponible";
 
   const levelSeries = useMemo(() => buildDemoSeries(selectedWaterLevel, "level"), [selectedWaterLevel]);
   const rainSeries = useMemo(() => buildDemoSeries(selectedRain, "rain"), [selectedRain]);
@@ -189,7 +193,42 @@ export default function Dashboard() {
           <h2 className="mb-4 text-2xl font-semibold">
             {mode === "real" ? "Mapa de estaciones" : "Mapa de despliegue"}
           </h2>
+
           <NationalMap onSelectStation={setSelectedStation} />
+
+          <div className="mt-4 rounded-2xl bg-slate-900/70 p-4">
+            <div className="mb-3 text-lg font-semibold text-white">Leyenda</div>
+
+            <div className="flex flex-wrap gap-6 text-base text-slate-200">
+              <div className="flex items-center gap-2">
+                <img src={dropGreen} alt="Normal" className="h-8 w-8 object-contain" />
+                Normal
+              </div>
+              <div className="flex items-center gap-2">
+                <img src={dropOrange} alt="Vigilancia" className="h-8 w-8 object-contain" />
+                Vigilancia
+              </div>
+              <div className="flex items-center gap-2">
+                <img src={dropRed} alt="Alerta" className="h-8 w-8 object-contain" />
+                Alerta
+              </div>
+            </div>
+
+            <div className="mt-11 flex justify-end text-right text-sm text-slate-300">
+              <span className="font-medium text-white">Última actualización:</span>{" "}
+              {mode === "real"
+                ? stations.length > 0
+                  ? new Date(
+                      Math.max(
+                        ...stations
+                          .map((station: any) => new Date(station?.time ?? 0).getTime())
+                          .filter((value: number) => !isNaN(value))
+                      )
+                    ).toLocaleString("es-ES")
+                  : "Sin datos"
+                : "Simulación"}
+            </div>
+          </div>
         </div>
 
         <div className="space-y-6">
@@ -205,9 +244,12 @@ export default function Dashboard() {
                   <p className="mt-1 text-lg font-medium text-white">
                     {selectedStation.location ?? selectedStation.province ?? "Sin ubicación"}
                   </p>
+                  <p className="mt-3 text-sm text-slate-300">
+                    {selectedSummary}
+                  </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+                <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(140px,1fr))]">
                   <div className="rounded-2xl bg-slate-900 p-4">
                     <div className="text-xs text-slate-400">Nivel de agua</div>
                     <div className="mt-2 text-2xl font-semibold text-white">
@@ -225,14 +267,14 @@ export default function Dashboard() {
                   <div className="rounded-2xl bg-slate-900 p-4">
                     <div className="text-xs text-slate-400">Turbidez</div>
                     <div className="mt-2 text-2xl font-semibold text-white">
-                      {selectedTurbidity} NTU
+                      {selectedTurbidity}
                     </div>
                   </div>
 
                   <div className="rounded-2xl bg-slate-900 p-4">
                     <div className="text-xs text-slate-400">Humedad</div>
                     <div className="mt-2 text-2xl font-semibold text-white">
-                      {selectedHumidity}%
+                      {selectedHumidity}
                     </div>
                   </div>
 

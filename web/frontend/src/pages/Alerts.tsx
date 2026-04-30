@@ -5,23 +5,23 @@ const simulatedAlerts = [
   {
     id: "sim-alert-1",
     title: "Vigilancia en Madrid",
-    description: "Se detecta un aumento del nivel de agua que requiere seguimiento.",
+    description: "Nivel elevado y lluvia moderada en la zona.",
     level: "Vigilancia",
     stationName: "Madrid",
   },
   {
     id: "sim-alert-2",
     title: "Alerta en Barcelona",
-    description: "Se ha detectado un nivel elevado en la estación simulada.",
+    description: "Nivel muy alto y lluvia significativa.",
     level: "Alerta",
     stationName: "Barcelona",
   },
   {
     id: "sim-alert-3",
-    title: "Vigilancia en Bilbao",
-    description: "La estación presenta valores que aconsejan vigilancia preventiva.",
+    title: "Vigilancia en Valencia",
+    description: "La estación muestra una tendencia ascendente del nivel.",
     level: "Vigilancia",
-    stationName: "Bilbao",
+    stationName: "Valencia",
   },
 ];
 
@@ -58,7 +58,10 @@ export default function Alerts() {
       ) : (
         <section className="grid gap-5">
           {alertsToShow.map((alert: any, index: number) => (
-            <article key={alert?.id ?? index} className="rounded-3xl bg-white/5 p-5">
+            <article
+              key={alert?.id ?? index}
+              className="rounded-3xl bg-white/5 p-5"
+            >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <h2 className="text-2xl font-semibold">

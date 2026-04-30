@@ -17,12 +17,72 @@ function getStatusColor(status: string) {
 }
 
 const simulatedStations = [
-  { id: "sim-1", name: "Madrid", location: "Madrid", waterLevelCm: 110, rainMm: 18, turbidity: 2.1, humidity: 45 },
-  { id: "sim-2", name: "Barcelona", location: "Barcelona", waterLevelCm: 135, rainMm: 24, turbidity: 3.5, humidity: 62 },
-  { id: "sim-3", name: "Valencia", location: "Valencia", waterLevelCm: 95, rainMm: 14, turbidity: 1.8, humidity: 55 },
-  { id: "sim-4", name: "Sevilla", location: "Sevilla", waterLevelCm: 82, rainMm: 11, turbidity: 4.2, humidity: 38 },
-  { id: "sim-5", name: "Bilbao", location: "Bilbao", waterLevelCm: 145, rainMm: 20, turbidity: 2.9, humidity: 72 },
-  { id: "sim-6", name: "Zaragoza", location: "Zaragoza", waterLevelCm: 76, rainMm: 8, turbidity: 1.2, humidity: 41 },
+  {
+    id: "sim-1",
+    name: "Madrid",
+    location: "Madrid",
+    waterLevelCm: 110,
+    rainMm: 18,
+    turbidity: 62,
+    humidity: 74,
+    riskLabel: "Vigilancia",
+    riskSummary: "Nivel elevado y lluvia moderada",
+  },
+  {
+    id: "sim-2",
+    name: "Barcelona",
+    location: "Barcelona",
+    waterLevelCm: 135,
+    rainMm: 24,
+    turbidity: 81,
+    humidity: 86,
+    riskLabel: "Alerta",
+    riskSummary: "Nivel muy alto y lluvia significativa",
+  },
+  {
+    id: "sim-3",
+    name: "Valencia",
+    location: "Valencia",
+    waterLevelCm: 95,
+    rainMm: 14,
+    turbidity: 55,
+    humidity: 69,
+    riskLabel: "Vigilancia",
+    riskSummary: "Nivel por encima de la media reciente",
+  },
+  {
+    id: "sim-4",
+    name: "Sevilla",
+    location: "Sevilla",
+    waterLevelCm: 82,
+    rainMm: 11,
+    turbidity: 49,
+    humidity: 66,
+    riskLabel: "Vigilancia",
+    riskSummary: "Crecimiento reciente del nivel",
+  },
+  {
+    id: "sim-5",
+    name: "Bilbao",
+    location: "Bilbao",
+    waterLevelCm: 70,
+    rainMm: 9,
+    turbidity: 35,
+    humidity: 58,
+    riskLabel: "Normal",
+    riskSummary: "Valores dentro de la normalidad",
+  },
+  {
+    id: "sim-6",
+    name: "Zaragoza",
+    location: "Zaragoza",
+    waterLevelCm: 76,
+    rainMm: 8,
+    turbidity: 38,
+    humidity: 61,
+    riskLabel: "Normal",
+    riskSummary: "Valores dentro de la normalidad",
+  },
 ];
 
 export default function Stations() {
@@ -55,7 +115,8 @@ export default function Stations() {
             const rain = station?.rainMm;
             const turbidity = station?.turbidity;
             const humidity = station?.humidity;
-            const status = getStatus(waterLevel);
+            const status = station?.riskLabel ?? getStatus(waterLevel);
+            const summary = station?.riskSummary ?? "Sin información adicional";
 
             return (
               <Link
@@ -72,6 +133,9 @@ export default function Stations() {
                     <p className="mt-2 text-sm text-slate-300">
                       {station?.location ?? station?.province ?? "Sin ubicación"}
                     </p>
+                    <p className="mt-3 text-sm text-slate-400">
+                      {summary}
+                    </p>
                   </div>
 
                   <span
@@ -83,7 +147,7 @@ export default function Stations() {
                   </span>
                 </div>
 
-                <div className="mt-5 grid grid-cols-4 gap-3">
+                <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
                   <div className="rounded-2xl bg-slate-900 p-4">
                     <div className="text-xs text-slate-400">Nivel</div>
                     <div className="mt-2 text-xl font-semibold">
@@ -101,14 +165,14 @@ export default function Stations() {
                   <div className="rounded-2xl bg-slate-900 p-4">
                     <div className="text-xs text-slate-400">Turbidez</div>
                     <div className="mt-2 text-xl font-semibold">
-                      {turbidity != null ? `${turbidity} NTU` : "—"}
+                      {turbidity != null ? turbidity : "—"}
                     </div>
                   </div>
 
                   <div className="rounded-2xl bg-slate-900 p-4">
                     <div className="text-xs text-slate-400">Humedad</div>
                     <div className="mt-2 text-xl font-semibold">
-                      {humidity != null ? `${humidity} %` : "—"}
+                      {humidity != null ? humidity : "—"}
                     </div>
                   </div>
                 </div>
