@@ -94,6 +94,10 @@ def add_new_item():
     rain = get_float("Enter Rain (mm): ")
     turbidity = get_float("Enter Turbidity (NTU): ")
     humidity = get_float("Enter Humidity (%): ")
+    battery = get_float("Enter Battery (V): ")
+    
+    ext_str = input("Enter Ext Wakeup (true/false, default false): ").strip().lower()
+    ext_wakeup = True if ext_str == "true" else False
     
     post_telemetry({
         "nodeId": nodeId,
@@ -104,7 +108,9 @@ def add_new_item():
         "waterLevelCm": water,
         "rainMm": rain,
         "turbidity": turbidity,
-        "humidity": humidity
+        "humidity": humidity,
+        "battery": battery,
+        "ext_wakeup": ext_wakeup
     })
 
 def update_existing_item():
@@ -135,6 +141,8 @@ def update_existing_item():
     def_rain = latest.get("rainMm")
     def_turb = latest.get("turbidity")
     def_hum = latest.get("humidity")
+    def_batt = latest.get("battery")
+    def_ext = latest.get("ext_wakeup")
 
     site = get_string(f"Enter Site Name for {nodeId}", def_site)
     province = get_string(f"Enter Province", def_prov)
@@ -144,6 +152,12 @@ def update_existing_item():
     rain = get_float("Enter new Rain (mm)", def_rain)
     turbidity = get_float("Enter new Turbidity (NTU)", def_turb)
     humidity = get_float("Enter new Humidity (%)", def_hum)
+    battery = get_float("Enter new Battery (V)", def_batt)
+    
+    ext_str = input(f"Enter new Ext Wakeup (true/false) [{def_ext}]: ").strip().lower()
+    ext_wakeup = def_ext
+    if ext_str == "true": ext_wakeup = True
+    elif ext_str == "false": ext_wakeup = False
     
     payload = {
         "nodeId": nodeId,
@@ -154,6 +168,8 @@ def update_existing_item():
         "turbidity": turbidity,
         "humidity": humidity
     }
+    if battery is not None: payload["battery"] = battery
+    if ext_wakeup is not None: payload["ext_wakeup"] = ext_wakeup
     if lat is not None: payload["lat"] = lat
     if lng is not None: payload["lng"] = lng
         

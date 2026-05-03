@@ -25,7 +25,7 @@ function getRecentHistory(nodeId) { // esta función obtiene el historial de las
       |> range(start: -6h)
       |> filter(fn: (r) => r._measurement == "telemetry")
       |> filter(fn: (r) => r.nodeId == "${nodeId}")
-      |> filter(fn: (r) => r._field == "waterLevelCm" or r._field == "rainMm" or r._field == "turbidity" or r._field == "humidity")
+      |> filter(fn: (r) => r._field == "waterLevelCm" or r._field == "rainMm" or r._field == "turbidity" or r._field == "humidity" or r._field == "battery" or r._field == "ext_wakeup")
       |> sort(columns: ["_time"])`;
 
     const rows = [];
@@ -53,6 +53,8 @@ function getRecentHistory(nodeId) { // esta función obtiene el historial de las
           if (r._field === "rainMm") historyMap[time].rainMm = r._value;
           if (r._field === "turbidity") historyMap[time].turbidity = r._value;
           if (r._field === "humidity") historyMap[time].humidity = r._value;
+          if (r._field === "battery") historyMap[time].battery = r._value;
+          if (r._field === "ext_wakeup") historyMap[time].ext_wakeup = r._value;
         }
 
         const result = Object.values(historyMap).sort(
@@ -114,6 +116,8 @@ app.get("/stations", (req, res) => {
         if (r._field === "humidity") stationsMap[r.nodeId].humidity = r._value;
         if (r._field === "lat") stationsMap[r.nodeId].lat = r._value;
         if (r._field === "lng") stationsMap[r.nodeId].lng = r._value;
+        if (r._field === "battery") stationsMap[r.nodeId].battery = r._value;
+        if (r._field === "ext_wakeup") stationsMap[r.nodeId].ext_wakeup = r._value;
         if (r.province) stationsMap[r.nodeId].province = r.province;
       }
 
@@ -176,6 +180,8 @@ app.get("/stations/:id/history", (req, res) => {
         if (r._field === "rainMm") historyMap[time].rainMm = r._value;
         if (r._field === "turbidity") historyMap[time].turbidity = r._value;
         if (r._field === "humidity") historyMap[time].humidity = r._value;
+        if (r._field === "battery") historyMap[time].battery = r._value;
+        if (r._field === "ext_wakeup") historyMap[time].ext_wakeup = r._value;
       }
 
       const result = Object.values(historyMap).sort(
@@ -212,6 +218,8 @@ app.get("/latest", (req, res) => {
         rainMm: null,
         turbidity: null,
         humidity: null,
+        battery: null,
+        ext_wakeup: null,
       };
 
       for (const r of rows) {
@@ -223,6 +231,8 @@ app.get("/latest", (req, res) => {
         if (r._field === "humidity") out.humidity = r._value;
         if (r._field === "lat") out.lat = r._value;
         if (r._field === "lng") out.lng = r._value;
+        if (r._field === "battery") out.battery = r._value;
+        if (r._field === "ext_wakeup") out.ext_wakeup = r._value;
         if (r.province) out.province = r.province;
         if (r.nodeId) out.nodeId = r.nodeId;
         if (r.site) out.site = r.site;
@@ -251,26 +261,32 @@ app.post("/telemetry/notify_delete", (req, res) => {
 });
 
 app.post("/telemetry", async (req, res) => {
-  const { nodeId, site, waterLevelCm, rainMm, turbidity, humidity, lat, lng, province } = req.body;
+  const { 
+    nodeId, site, waterLevelCm, rainMm, turbidity, humidity, lat, lng, province,
+    node_id, sonar_cm, intensity_mm_h, battery, ext_wakeup 
+  } = req.body;
+
+  const actualNodeId = nodeId || node_id;
+  const actualWaterLevel = waterLevelCm ?? sonar_cm;
+  const actualRain = rainMm ?? intensity_mm_h;
+  const actualTurbidity = turbidity;
+  const actualHumidity = humidity;
 
   const errors = [];
 
-  if (typeof nodeId !== "string" || !nodeId.trim()) {
-    errors.push("'nodeId' must be a non-empty string.");
+  if (typeof actualNodeId !== "string" || !actualNodeId.trim()) {
+    errors.push("'nodeId' (or 'node_id') must be a non-empty string.");
   }
-  if (typeof site !== "string" || !site.trim()) {
-    errors.push("'site' must be a non-empty string.");
+  if (typeof actualWaterLevel !== "number" || isNaN(actualWaterLevel)) {
+    errors.push("'waterLevelCm' (or 'sonar_cm') must be a valid number.");
   }
-  if (typeof waterLevelCm !== "number" || isNaN(waterLevelCm)) {
-    errors.push("'waterLevelCm' must be a valid number.");
+  if (actualRain !== undefined && (typeof actualRain !== "number" || isNaN(actualRain))) {
+    errors.push("'rainMm' (or 'intensity_mm_h') must be a valid number.");
   }
-  if (typeof rainMm !== "number" || isNaN(rainMm)) {
-    errors.push("'rainMm' must be a valid number.");
-  }
-  if (typeof turbidity !== "number" || isNaN(turbidity)) {
+  if (typeof actualTurbidity !== "number" || isNaN(actualTurbidity)) {
     errors.push("'turbidity' must be a valid number.");
   }
-  if (typeof humidity !== "number" || isNaN(humidity)) {
+  if (typeof actualHumidity !== "number" || isNaN(actualHumidity)) {
     errors.push("'humidity' must be a valid number.");
   }
   if (lat !== undefined && (typeof lat !== "number" || isNaN(lat))) {
@@ -284,17 +300,48 @@ app.post("/telemetry", async (req, res) => {
     return res.status(400).json({ ok: false, error: "Invalid data format", details: errors });
   }
 
+  let finalSite = site;
+  let finalProvince = province;
+
+  if (!finalSite) {
+    const q = flux`from(bucket: "${INFLUX_BUCKET}")
+      |> range(start: -30d)
+      |> filter(fn: (r) => r._measurement == "telemetry" and r.nodeId == "${actualNodeId}")
+      |> last()`;
+    const rows = [];
+    try {
+      await new Promise((resolve, reject) => {
+        queryApi.queryRows(q, {
+          next: (row, tableMeta) => rows.push(tableMeta.toObject(row)),
+          error: reject,
+          complete: resolve
+        });
+      });
+      for (const r of rows) {
+        if (r.site && !finalSite) finalSite = r.site;
+        if (r.province && !finalProvince) finalProvince = r.province;
+      }
+    } catch (e) {
+      console.error("Error fetching previous metadata:", e);
+    }
+  }
+
+  if (!finalSite) finalSite = "Unknown";
+
   const p = new Point("telemetry")
-    .tag("nodeId", String(nodeId))
-    .tag("site", String(site))
-    .floatField("waterLevelCm", Number(waterLevelCm))
-    .floatField("rainMm", Number(rainMm))
-    .floatField("turbidity", Number(turbidity))
-    .floatField("humidity", Number(humidity));
+    .tag("nodeId", String(actualNodeId))
+    .tag("site", String(finalSite))
+    .floatField("waterLevelCm", Number(actualWaterLevel))
+    .floatField("turbidity", Number(actualTurbidity))
+    .floatField("humidity", Number(actualHumidity));
+
+  if (actualRain !== undefined) p.floatField("rainMm", Number(actualRain));
+  if (battery !== undefined) p.floatField("battery", Number(battery));
+  if (ext_wakeup !== undefined) p.booleanField("ext_wakeup", Boolean(ext_wakeup));
 
   if (lat !== undefined) p.floatField("lat", Number(lat));
   if (lng !== undefined) p.floatField("lng", Number(lng));
-  if (province) p.tag("province", String(province));
+  if (finalProvince) p.tag("province", String(finalProvince));
 
   p.timestamp(new Date());
 
@@ -337,6 +384,8 @@ app.post("/telemetry", async (req, res) => {
           rainMm: null,
           turbidity: null,
           humidity: null,
+          battery: null,
+          ext_wakeup: null,
           risk: null,
           riskLabel: null,
           riskScore: null,
@@ -353,6 +402,8 @@ app.post("/telemetry", async (req, res) => {
           if (r._field === "humidity") out.humidity = r._value;
           if (r._field === "lat") out.lat = r._value;
           if (r._field === "lng") out.lng = r._value;
+          if (r._field === "battery") out.battery = r._value;
+          if (r._field === "ext_wakeup") out.ext_wakeup = r._value;
           if (r.province) out.province = r.province;
         }
 

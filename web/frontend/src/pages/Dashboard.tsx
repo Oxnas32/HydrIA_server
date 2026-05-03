@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import NationalMap from "../components/NationalMap";
 import { useTelemetry } from "../context/TelemetryContext";
 import { useViewMode } from "../context/ViewModeContext";
+import { simulatedStations } from "../data/simulatedStations";
 import dropGreen from "../assets/drop-green.png";
 import dropOrange from "../assets/drop-orange.png";
 import dropRed from "../assets/drop-red.png";
@@ -52,20 +53,12 @@ export default function Dashboard() {
 
   const shownStations = mode === "real"
     ? stations.slice(0, 2)
-    : [
-        { id: "sim-1", name: "Madrid", location: "Madrid", waterLevelCm: 110, rainMm: 18, turbidity: 62, humidity: 74, riskLabel: "Vigilancia", riskSummary: "Nivel elevado y lluvia moderada" },
-        { id: "sim-2", name: "Barcelona", location: "Barcelona", waterLevelCm: 135, rainMm: 24, turbidity: 81, humidity: 86, riskLabel: "Alerta", riskSummary: "Nivel muy alto y lluvia significativa" },
-      ];
+    : simulatedStations.slice(0, 2);
 
   const allStationsForSelection = useMemo(() => {
     return mode === "real"
       ? stations
-      : [
-          { id: "sim-1", name: "Madrid", location: "Madrid", lat: 40.4168, lng: -3.7038, waterLevelCm: 110, rainMm: 18, turbidity: 62, humidity: 74, riskLabel: "Vigilancia", riskSummary: "Nivel elevado y lluvia moderada" },
-          { id: "sim-2", name: "Barcelona", location: "Barcelona", lat: 41.3874, lng: 2.1686, waterLevelCm: 135, rainMm: 24, turbidity: 81, humidity: 86, riskLabel: "Alerta", riskSummary: "Nivel muy alto y lluvia significativa" },
-          { id: "sim-3", name: "Valencia", location: "Valencia", lat: 39.4699, lng: -0.3763, waterLevelCm: 95, rainMm: 14, turbidity: 55, humidity: 69, riskLabel: "Vigilancia", riskSummary: "Nivel por encima de lo habitual" },
-          { id: "sim-4", name: "Sevilla", location: "Sevilla", lat: 37.3891, lng: -5.9845, waterLevelCm: 82, rainMm: 11, turbidity: 49, humidity: 66, riskLabel: "Vigilancia", riskSummary: "Crecimiento reciente del nivel" },
-        ];
+      : simulatedStations;
   }, [mode, stations]);
 
   const [selectedStation, setSelectedStation] = useState<any>(null);
@@ -83,6 +76,8 @@ export default function Dashboard() {
   const selectedRain = selectedStation?.rainMm ?? 0;
   const selectedTurbidity = selectedStation?.turbidity ?? 0;
   const selectedHumidity = selectedStation?.humidity ?? 0;
+  const selectedBattery = selectedStation?.battery;
+  const selectedWakeup = selectedStation?.ext_wakeup;
   const selectedStatus = selectedStation?.riskLabel ?? getStatus(selectedWaterLevel);
   const selectedSummary = selectedStation?.riskSummary ?? "Sin explicación disponible";
 
@@ -263,21 +258,35 @@ export default function Dashboard() {
                   <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-cyan-50/50 border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/40 dark:to-fuchsia-900/10 p-4">
                     <div className="text-xs text-slate-700 dark:text-slate-400">Precipitación</div>
                     <div className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
-                      {selectedRain} mm
+                      {selectedRain} mm/h
                     </div>
                   </div>
 
                   <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-cyan-50/50 border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/40 dark:to-fuchsia-900/10 p-4">
                     <div className="text-xs text-slate-700 dark:text-slate-400">Turbidez</div>
                     <div className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
-                      {selectedTurbidity}
+                      {selectedTurbidity} NTU
                     </div>
                   </div>
 
                   <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-cyan-50/50 border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/40 dark:to-fuchsia-900/10 p-4">
                     <div className="text-xs text-slate-700 dark:text-slate-400">Humedad</div>
                     <div className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
-                      {selectedHumidity}
+                      {selectedHumidity} %
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-cyan-50/50 border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/40 dark:to-fuchsia-900/10 p-4">
+                    <div className="text-xs text-slate-700 dark:text-slate-400">Batería</div>
+                    <div className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
+                      {selectedBattery != null ? `${selectedBattery} V` : "—"}
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-cyan-50/50 border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/40 dark:to-fuchsia-900/10 p-4">
+                    <div className="text-xs text-slate-700 dark:text-slate-400">Activación</div>
+                    <div className="mt-2 text-lg font-semibold text-slate-900 dark:text-white">
+                      {selectedWakeup !== undefined ? (selectedWakeup ? "Lluvia (Ext)" : "Temporizador") : "—"}
                     </div>
                   </div>
 

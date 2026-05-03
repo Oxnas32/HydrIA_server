@@ -89,6 +89,8 @@ export default function StationDetail() {
   const rain = station?.rainMm;
   const turbidity = station?.turbidity;
   const humidity = station?.humidity;
+  const battery = station?.battery;
+  const ext_wakeup = station?.ext_wakeup;
   const status = station?.riskLabel ?? getStatus(waterLevel);
   const summary = station?.riskSummary ?? "Sin explicación disponible";
   const reasons = station?.riskReasons ?? [];
@@ -146,7 +148,7 @@ export default function StationDetail() {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-4">
+      <section className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
         <div className="rounded-3xl bg-gradient-to-br from-white to-cyan-50 shadow-sm border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/50 dark:to-fuchsia-900/20 p-5">
           <div className="text-sm text-slate-700 dark:text-slate-400">Nivel de agua</div>
           <div className="mt-2 text-3xl font-semibold text-slate-900 dark:text-white">
@@ -157,21 +159,35 @@ export default function StationDetail() {
         <div className="rounded-3xl bg-gradient-to-br from-white to-cyan-50 shadow-sm border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/50 dark:to-fuchsia-900/20 p-5">
           <div className="text-sm text-slate-700 dark:text-slate-400">Lluvia</div>
           <div className="mt-2 text-3xl font-semibold text-slate-900 dark:text-white">
-            {rain != null ? `${rain} mm` : "—"}
+            {rain != null ? `${rain} mm/h` : "—"}
           </div>
         </div>
 
         <div className="rounded-3xl bg-gradient-to-br from-white to-cyan-50 shadow-sm border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/50 dark:to-fuchsia-900/20 p-5">
           <div className="text-sm text-slate-700 dark:text-slate-400">Turbidez</div>
           <div className="mt-2 text-3xl font-semibold text-slate-900 dark:text-white">
-            {turbidity != null ? turbidity : "—"}
+            {turbidity != null ? `${turbidity} NTU` : "—"}
           </div>
         </div>
 
         <div className="rounded-3xl bg-gradient-to-br from-white to-cyan-50 shadow-sm border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/50 dark:to-fuchsia-900/20 p-5">
           <div className="text-sm text-slate-700 dark:text-slate-400">Humedad</div>
           <div className="mt-2 text-3xl font-semibold text-slate-900 dark:text-white">
-            {humidity != null ? humidity : "—"}
+            {humidity != null ? `${humidity} %` : "—"}
+          </div>
+        </div>
+
+        <div className="rounded-3xl bg-gradient-to-br from-white to-cyan-50 shadow-sm border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/50 dark:to-fuchsia-900/20 p-5">
+          <div className="text-sm text-slate-700 dark:text-slate-400">Batería</div>
+          <div className="mt-2 text-3xl font-semibold text-slate-900 dark:text-white">
+            {battery != null ? `${battery} V` : "—"}
+          </div>
+        </div>
+
+        <div className="rounded-3xl bg-gradient-to-br from-white to-cyan-50 shadow-sm border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/50 dark:to-fuchsia-900/20 p-5">
+          <div className="text-sm text-slate-700 dark:text-slate-400">Activación</div>
+          <div className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
+            {ext_wakeup !== undefined ? (ext_wakeup ? "Lluvia (Ext)" : "Temporizador") : "—"}
           </div>
         </div>
       </section>

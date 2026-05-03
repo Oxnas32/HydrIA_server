@@ -42,6 +42,14 @@ def add_new_item_gui():
         hum_str = simpledialog.askstring("Add Node", "Enter Humidity (%):")
         if hum_str is None: return
         humidity = float(hum_str or 0)
+        
+        batt_str = simpledialog.askstring("Add Node", "Enter Battery (V):")
+        if batt_str is None: return
+        battery = float(batt_str or 0)
+        
+        ext_str = simpledialog.askstring("Add Node", "Enter Ext Wakeup (true/false, default false):")
+        if ext_str is None: return
+        ext_wakeup = True if ext_str.strip().lower() == "true" else False
     except ValueError:
         messagebox.showerror("Error", "All telemetry values must be numbers.")
         return
@@ -55,7 +63,9 @@ def add_new_item_gui():
         "waterLevelCm": water,
         "rainMm": rain,
         "turbidity": turbidity,
-        "humidity": humidity
+        "humidity": humidity,
+        "battery": battery,
+        "ext_wakeup": ext_wakeup
     })
     messagebox.showinfo("Success", f"Node {nodeId} addition command safely sent to API.")
 
@@ -77,12 +87,14 @@ def update_existing_item_gui():
     
     def_site = latest.get("site") or "Unknown"
     def_prov = latest.get("province") or "Unknown"
-    def_lat = latest.get("lat") or 0.0
-    def_lng = latest.get("lng") or 0.0
-    def_water = latest.get("waterLevelCm") or 0.0
-    def_rain = latest.get("rainMm") or 0.0
-    def_turb = latest.get("turbidity") or 0.0
-    def_hum = latest.get("humidity") or 0.0
+    def_lat = latest.get("lat")
+    def_lng = latest.get("lng")
+    def_water = latest.get("waterLevelCm")
+    def_rain = latest.get("rainMm")
+    def_turb = latest.get("turbidity")
+    def_hum = latest.get("humidity")
+    def_batt = latest.get("battery")
+    def_ext = latest.get("ext_wakeup")
     
     site = simpledialog.askstring("Update Node", f"Enter Site Name for {nodeId}:", initialvalue=def_site)
     if site is None: return
@@ -90,29 +102,40 @@ def update_existing_item_gui():
     if province is None: return
     
     try:
-        lat_str = simpledialog.askstring("Update Node", "Enter new Latitude:", initialvalue=str(def_lat))
+        lat_str = simpledialog.askstring("Update Node", f"Enter new Latitude (current: {def_lat}):\nLeave blank to keep current.", initialvalue="")
         if lat_str is None: return
-        lat = float(lat_str)
+        lat = float(lat_str) if lat_str.strip() else def_lat
         
-        lng_str = simpledialog.askstring("Update Node", "Enter new Longitude:", initialvalue=str(def_lng))
+        lng_str = simpledialog.askstring("Update Node", f"Enter new Longitude (current: {def_lng}):\nLeave blank to keep current.", initialvalue="")
         if lng_str is None: return
-        lng = float(lng_str)
+        lng = float(lng_str) if lng_str.strip() else def_lng
         
-        water_str = simpledialog.askstring("Update Node", "Enter new Water Level (cm):", initialvalue=str(def_water))
+        water_str = simpledialog.askstring("Update Node", f"Enter new Water Level (cm) (current: {def_water}):\nLeave blank to keep current.", initialvalue="")
         if water_str is None: return
-        water = float(water_str)
+        water = float(water_str) if water_str.strip() else def_water
         
-        rain_str = simpledialog.askstring("Update Node", "Enter new Rain (mm):", initialvalue=str(def_rain))
+        rain_str = simpledialog.askstring("Update Node", f"Enter new Rain (mm) (current: {def_rain}):\nLeave blank to keep current.", initialvalue="")
         if rain_str is None: return
-        rain = float(rain_str)
+        rain = float(rain_str) if rain_str.strip() else def_rain
         
-        turb_str = simpledialog.askstring("Update Node", "Enter new Turbidity (NTU):", initialvalue=str(def_turb))
+        turb_str = simpledialog.askstring("Update Node", f"Enter new Turbidity (NTU) (current: {def_turb}):\nLeave blank to keep current.", initialvalue="")
         if turb_str is None: return
-        turbidity = float(turb_str)
+        turbidity = float(turb_str) if turb_str.strip() else def_turb
         
-        hum_str = simpledialog.askstring("Update Node", "Enter new Humidity (%):", initialvalue=str(def_hum))
+        hum_str = simpledialog.askstring("Update Node", f"Enter new Humidity (%) (current: {def_hum}):\nLeave blank to keep current.", initialvalue="")
         if hum_str is None: return
-        humidity = float(hum_str)
+        humidity = float(hum_str) if hum_str.strip() else def_hum
+        
+        batt_str = simpledialog.askstring("Update Node", f"Enter new Battery (V) (current: {def_batt}):\nLeave blank to keep current.", initialvalue="")
+        if batt_str is None: return
+        battery = float(batt_str) if batt_str.strip() else def_batt
+        
+        ext_str = simpledialog.askstring("Update Node", f"Enter new Ext Wakeup (true/false) (current: {def_ext}):\nLeave blank to keep current.", initialvalue="")
+        if ext_str is None: return
+        if ext_str.strip():
+            ext_wakeup = True if ext_str.strip().lower() == "true" else False
+        else:
+            ext_wakeup = def_ext
     except ValueError:
         messagebox.showerror("Error", "All telemetry values must be numbers.")
         return
@@ -124,10 +147,12 @@ def update_existing_item_gui():
         "waterLevelCm": water,
         "rainMm": rain,
         "turbidity": turbidity,
-        "humidity": humidity,
-        "lat": lat,
-        "lng": lng
+        "humidity": humidity
     }
+    if lat is not None: payload["lat"] = lat
+    if lng is not None: payload["lng"] = lng
+    if battery is not None: payload["battery"] = battery
+    if ext_wakeup is not None: payload["ext_wakeup"] = ext_wakeup
         
     manage.post_telemetry(payload)
     messagebox.showinfo("Success", f"Node {nodeId} update command efficiently relayed to API.")

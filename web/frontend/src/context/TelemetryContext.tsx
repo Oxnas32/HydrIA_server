@@ -12,6 +12,8 @@ interface Station {
   rainMm?: number;
   turbidity?: number;
   humidity?: number;
+  battery?: number;
+  ext_wakeup?: boolean;
   risk?: string;
   riskLabel?: string;
   riskScore?: number;
@@ -81,6 +83,8 @@ export function TelemetryProvider({ children }: { children: ReactNode }) {
             rainMm: item.rainMm,
             turbidity: item.turbidity,
             humidity: item.humidity,
+            battery: item.battery,
+            ext_wakeup: item.ext_wakeup,
             risk: item.risk,
             riskLabel: item.riskLabel,
             riskScore: item.riskScore,
@@ -137,6 +141,8 @@ export function TelemetryProvider({ children }: { children: ReactNode }) {
             rainMm: item.rainMm,
             turbidity: item.turbidity,
             humidity: item.humidity,
+            battery: item.battery,
+            ext_wakeup: item.ext_wakeup,
             risk: item.risk,
             riskLabel: item.riskLabel,
             riskScore: item.riskScore,
