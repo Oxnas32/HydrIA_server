@@ -28,7 +28,7 @@ export default function AppLayout() {
             </div>
 
             <span className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
-              HydR<span className="text-indigo-600 dark:text-fuchsia-400">IA</span>
+              Hyd<span className="text-indigo-600 dark:text-fuchsia-400">RIA</span>
             </span>
           </NavLink>
 

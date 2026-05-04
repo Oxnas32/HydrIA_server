@@ -4,7 +4,7 @@ export default function HowItWorks() {
         <section className="rounded-3xl bg-gradient-to-br from-white via-cyan-50 to-blue-100 dark:from-indigo-950 dark:via-violet-950 dark:to-fuchsia-950 text-slate-900 dark:text-white p-8">
           <h1 className="text-4xl font-bold text-slate-900 dark:text-white">¿Cómo funciona?</h1>
           <p className="mt-3 max-w-3xl text-slate-800 dark:text-slate-300">
-            Resumen general del funcionamiento de la plataforma HydrIA.
+            Resumen general del funcionamiento de la plataforma Hyd<span className="text-indigo-600 dark:text-fuchsia-400 font-bold">RIA</span>.
           </p>
         </section>
   
