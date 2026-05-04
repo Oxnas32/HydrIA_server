@@ -46,8 +46,10 @@ export default function StationDetail() {
   useEffect(() => {
     if (!id) return;
   
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
     const loadHistory = () => {
-      fetch(`http://localhost:3001/stations/${id}/history`)
+      fetch(`${API_URL}/stations/${id}/history`)
         .then((res) => res.json())
         .then((data) => {
           if (data?.ok) {

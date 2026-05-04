@@ -43,7 +43,7 @@ cd ../../
 - **Frontend Application:** `http://localhost:5174` (or `5173`)
 - **Backend API Server:** `http://localhost:3001`
 
-*(To cleanly shut down both background servers simultaneously, just press `Ctrl+C` inside the running terminal).*
+_(To cleanly shut down both background servers simultaneously, just press `Ctrl+C` inside the running terminal)._
 
 ---
 
@@ -51,14 +51,16 @@ cd ../../
 
 To quickly inject node data, override sensor telemetry, or entirely wipe nodes across the local network without physical hardware, use the integrated Python manager scripts.
 
-*Note: You must have `./start.sh` running in the background before opening these tools, because they rely on Port 3001 to sync with the React layout!*
+_Note: You must have `./start.sh` running in the background before opening these tools, because they rely on Port 3001 to sync with the React layout!_
 
 ### Option A: Standard Terminal Application
+
 ```bash
 python3 manage.py
 ```
 
 ### Option B: Visual Desktop Interface Manager
+
 If you prefer managing the internal database natively through floating control panels, automated dropdown menus, and visual confirm guards, open the GUI:
 
 ```bash
@@ -69,7 +71,22 @@ python3 manage_gui.py
 ```
 
 These administrative tools safely allow you to:
+
 - Add an entirely new sensor Node manually into the active environment map.
 - Provide fake telemetry values for an existing item to mimic changes on the frontend dynamically.
 - Eradicate nodes entirely from the InfluxDB engine.
 - Sanitize the entire deployment via an emergency Influx database drop.
+
+---
+
+## Direct Network Access (Proxmox IP)
+
+To expose the application publicly from your Proxmox server without using a reverse proxy, the frontend has been configured to use dynamic environment variables.
+
+### Starting the Servers
+
+To start the application so it can be accessed across your entire local network or VPN use the integrated launch script and pass your Proxmox IP to it. From the root directory, run:
+
+```bash
+VITE_API_URL="http://<YOUR_PROXMOX_IP>:3001" ./start.sh
+```

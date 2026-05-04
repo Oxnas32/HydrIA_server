@@ -428,4 +428,4 @@ app.post("/telemetry", async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`API listening on http://localhost:${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`API listening on http://0.0.0.0:${PORT}`));

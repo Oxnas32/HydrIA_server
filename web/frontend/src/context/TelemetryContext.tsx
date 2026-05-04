@@ -67,8 +67,10 @@ export function TelemetryProvider({ children }: { children: ReactNode }) {
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
   useEffect(() => {
-    fetch("http://localhost:3001/stations")
+    fetch(`${API_URL}/stations`)
       .then((res) => res.json())
       .then((data) => {
         if (data?.ok && Array.isArray(data.data)) {
@@ -101,9 +103,9 @@ export function TelemetryProvider({ children }: { children: ReactNode }) {
       })
       .catch(() => {
         setError("No se ha podido conectar con la API.");
-      });
+        });
 
-    const eventSource = new EventSource("http://localhost:3001/events");
+    const eventSource = new EventSource(`${API_URL}/events`);
 
     eventSource.onmessage = (event) => {
       try {
