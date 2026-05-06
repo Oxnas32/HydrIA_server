@@ -49,7 +49,7 @@ function getPolylinePoints(data: number[], width: number, height: number) {
 export default function Dashboard() {
   const { stations, alerts } = useTelemetry();
   const coveredAreas = [...new Set(stations.map((station: any) => station?.province).filter(Boolean))];
-  const { mode, setMode } = useViewMode();
+  const { mode } = useViewMode();
 
   const shownStations = mode === "real"
     ? stations.slice(0, 2)
@@ -61,16 +61,12 @@ export default function Dashboard() {
       : simulatedStations;
   }, [mode, stations]);
 
-  const [selectedStation, setSelectedStation] = useState<any>(null);
+  const [selectedStationId, setSelectedStationId] = useState<string | null>(null);
 
-  useEffect(() => {
-    setSelectedStation((prev: any) => {
-      if (!prev || !allStationsForSelection.find((s: any) => s.id === prev.id)) {
-        return allStationsForSelection.length > 0 ? allStationsForSelection[0] : null;
-      }
-      return allStationsForSelection.find((s: any) => s.id === prev.id) || prev;
-    });
-  }, [mode, allStationsForSelection]);
+  const selectedStation = useMemo(() => {
+    if (!selectedStationId) return allStationsForSelection.length > 0 ? allStationsForSelection[0] : null;
+    return allStationsForSelection.find((s: any) => String(s.id) === selectedStationId) || (allStationsForSelection.length > 0 ? allStationsForSelection[0] : null);
+  }, [allStationsForSelection, selectedStationId]);
 
   const selectedWaterLevel = selectedStation?.waterLevelCm ?? 0;
   const selectedRain = selectedStation?.rainMm ?? 0;
@@ -160,39 +156,13 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <div className="flex justify-center">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <button
-            onClick={() => setMode("real")}
-            className={`rounded-xl px-4 py-3 text-sm font-semibold transition ${
-              mode === "real"
-                ? "bg-indigo-600 text-white dark:bg-fuchsia-600"
-                : "bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-fuchsia-900/40 dark:text-fuchsia-200 dark:hover:bg-fuchsia-800/60"
-            }`}
-          >
-            Vista real
-          </button>
-
-          <button
-            onClick={() => setMode("simulation")}
-            className={`rounded-xl px-4 py-3 text-sm font-semibold transition ${
-              mode === "simulation"
-                ? "bg-orange-400 text-slate-900"
-                : "bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/40 dark:text-orange-200 dark:hover:bg-orange-800/60"
-            }`}
-          >
-            Simulación nacional
-          </button>
-        </div>
-      </div>
-
       <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="rounded-3xl bg-gradient-to-br from-white to-cyan-50 shadow-md border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/50 dark:to-fuchsia-900/20 p-5">
           <h2 className="mb-4 text-2xl font-semibold">
             {mode === "real" ? "Mapa de estaciones" : "Mapa de despliegue"}
           </h2>
 
-          <NationalMap onSelectStation={setSelectedStation} />
+          <NationalMap onSelectStation={(station: any) => setSelectedStationId(String(station?.id || ""))} />
 
           <div className="mt-4 rounded-2xl bg-white shadow-sm border border-slate-100 dark:border-none dark:bg-indigo-900/40 p-4">
             <div className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">Leyenda</div>

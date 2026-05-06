@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { useTelemetry } from "../context/TelemetryContext";
+import { simulatedStations } from "../data/simulatedStations";
 
 function getStatus(level?: number) {
   if (level == null) return "Sin datos";
@@ -41,10 +42,20 @@ export default function StationDetail() {
 
   const station = stations.find(
     (item: any, index: number) => String(item?.id ?? index) === String(id)
+  ) || simulatedStations.find(
+    (item: any) => String(item.id) === String(id)
   );
+
+  const isSimulated = String(id).startsWith("sim-");
 
   useEffect(() => {
     if (!id) return;
+    
+    if (isSimulated) {
+      setHistory([]);
+      setHistoryError(null);
+      return;
+    }
   
     const API_URL = import.meta.env.VITE_API_URL || "/api";
 
@@ -71,7 +82,23 @@ export default function StationDetail() {
     const interval = setInterval(loadHistory, 3000);
   
     return () => clearInterval(interval);
-  }, [id]);
+  }, [id, isSimulated]);
+
+  const waterSeries = useMemo(
+    () =>
+      history
+        .map((item: any) => item?.waterLevelCm)
+        .filter((value: any) => typeof value === "number"),
+    [history]
+  );
+
+  const rainSeries = useMemo(
+    () =>
+      history
+        .map((item: any) => item?.rainMm)
+        .filter((value: any) => typeof value === "number"),
+    [history]
+  );
 
   if (!station) {
     return (
@@ -96,22 +123,6 @@ export default function StationDetail() {
   const status = station?.riskLabel ?? getStatus(waterLevel);
   const summary = station?.riskSummary ?? "Sin explicación disponible";
   const reasons = station?.riskReasons ?? [];
-
-  const waterSeries = useMemo(
-    () =>
-      history
-        .map((item: any) => item?.waterLevelCm)
-        .filter((value: any) => typeof value === "number"),
-    [history]
-  );
-
-  const rainSeries = useMemo(
-    () =>
-      history
-        .map((item: any) => item?.rainMm)
-        .filter((value: any) => typeof value === "number"),
-    [history]
-  );
 
   const waterPoints = getPolylinePoints(waterSeries, 520, 150);
   const rainPoints = getPolylinePoints(rainSeries, 520, 150);

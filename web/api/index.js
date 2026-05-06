@@ -261,6 +261,8 @@ app.post("/telemetry/notify_delete", (req, res) => {
 });
 
 app.post("/telemetry", async (req, res) => {
+  console.log("Raw JSON received:", JSON.stringify(req.body, null, 2));
+  
   const { 
     nodeId, site, waterLevelCm, rainMm, turbidity, humidity, lat, lng, province,
     node_id, sonar_cm, intensity_mm_h, battery, ext_wakeup 
@@ -283,10 +285,10 @@ app.post("/telemetry", async (req, res) => {
   if (actualRain !== undefined && (typeof actualRain !== "number" || isNaN(actualRain))) {
     errors.push("'rainMm' (or 'intensity_mm_h') must be a valid number.");
   }
-  if (typeof actualTurbidity !== "number" || isNaN(actualTurbidity)) {
+  if (actualTurbidity !== undefined && (typeof actualTurbidity !== "number" || isNaN(actualTurbidity))) {
     errors.push("'turbidity' must be a valid number.");
   }
-  if (typeof actualHumidity !== "number" || isNaN(actualHumidity)) {
+  if (actualHumidity !== undefined && (typeof actualHumidity !== "number" || isNaN(actualHumidity))) {
     errors.push("'humidity' must be a valid number.");
   }
   if (lat !== undefined && (typeof lat !== "number" || isNaN(lat))) {
@@ -331,9 +333,10 @@ app.post("/telemetry", async (req, res) => {
   const p = new Point("telemetry")
     .tag("nodeId", String(actualNodeId))
     .tag("site", String(finalSite))
-    .floatField("waterLevelCm", Number(actualWaterLevel))
-    .floatField("turbidity", Number(actualTurbidity))
-    .floatField("humidity", Number(actualHumidity));
+    .floatField("waterLevelCm", Number(actualWaterLevel));
+
+  if (actualTurbidity !== undefined) p.floatField("turbidity", Number(actualTurbidity));
+  if (actualHumidity !== undefined) p.floatField("humidity", Number(actualHumidity));
 
   if (actualRain !== undefined) p.floatField("rainMm", Number(actualRain));
   if (battery !== undefined) p.floatField("battery", Number(battery));
@@ -350,14 +353,14 @@ app.post("/telemetry", async (req, res) => {
   try {
     await writeApi.flush();
 
-    const history = await getRecentHistory(nodeId);
+    const history = await getRecentHistory(actualNodeId);
 
     const riskResult = evaluateRisk(
       {
-        waterLevelCm,
-        rainMm,
-        turbidity,
-        humidity,
+        waterLevelCm: actualWaterLevel,
+        rainMm: actualRain,
+        turbidity: actualTurbidity,
+        humidity: actualHumidity,
       },
       history
     );
@@ -365,7 +368,7 @@ app.post("/telemetry", async (req, res) => {
     const q = flux`from(bucket: "${INFLUX_BUCKET}")
       |> range(start: -1m)
       |> filter(fn: (r) => r._measurement == "telemetry")
-      |> filter(fn: (r) => r.nodeId == "${nodeId}")
+      |> filter(fn: (r) => r.nodeId == "${actualNodeId}")
       |> group(columns: ["nodeId", "_field"])
       |> last()`;
 
@@ -377,8 +380,8 @@ app.post("/telemetry", async (req, res) => {
         res.status(500).json({ ok: false, error: "Read error", details: String(err) }),
       complete: () => {
         const out = {
-          nodeId,
-          site,
+          nodeId: actualNodeId,
+          site: finalSite,
           time: null,
           waterLevelCm: null,
           rainMm: null,
