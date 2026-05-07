@@ -128,7 +128,7 @@ export default function Dashboard() {
                 {mode === "real" ? "Estaciones activas" : "Estaciones simuladas"}
               </div>
               <div className="mt-2 text-2xl font-semibold">
-                {mode === "real" ? stations.length : 120}
+                {mode === "real" ? stations.length : simulatedStations.length}
               </div>
             </div>
 
@@ -249,7 +249,7 @@ export default function Dashboard() {
                   <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-cyan-50/50 border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/40 dark:to-fuchsia-900/10 p-4">
                     <div className="text-xs text-slate-700 dark:text-slate-400">Batería</div>
                     <div className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
-                      {selectedBattery != null ? `${selectedBattery} V` : "—"}
+                      {selectedBattery != null ? `${selectedBattery} %` : "—"}
                     </div>
                   </div>
 

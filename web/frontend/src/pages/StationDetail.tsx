@@ -193,7 +193,7 @@ export default function StationDetail() {
         <div className="rounded-3xl bg-gradient-to-br from-white to-cyan-50 shadow-sm border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/50 dark:to-fuchsia-900/20 p-5">
           <div className="text-sm text-slate-700 dark:text-slate-400">Batería</div>
           <div className="mt-2 text-3xl font-semibold text-slate-900 dark:text-white">
-            {battery != null ? `${battery} V` : "—"}
+            {battery != null ? `${battery} %` : "—"}
           </div>
         </div>
 

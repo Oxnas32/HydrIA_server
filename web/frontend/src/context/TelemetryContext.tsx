@@ -82,7 +82,7 @@ export function TelemetryProvider({ children }: { children: ReactNode }) {
             lat: item.lat,
             lng: item.lng,
             waterLevelCm: item.waterLevelCm,
-            rainMm: item.rainMm,
+            rainMm: item.rainMm != null ? Number((item.rainMm / 100).toFixed(2)) : undefined,
             turbidity: item.turbidity != null ? Math.round(3000 - (item.turbidity * 0.75)) : undefined,
             humidity: item.humidity != null ? Math.round(item.humidity / 40) : undefined,
             battery: item.battery,
@@ -140,7 +140,7 @@ export function TelemetryProvider({ children }: { children: ReactNode }) {
             lat: item.lat,
             lng: item.lng,
             waterLevelCm: item.waterLevelCm,
-            rainMm: item.rainMm,
+            rainMm: item.rainMm != null ? Number((item.rainMm / 100).toFixed(2)) : undefined,
             turbidity: item.turbidity != null ? Math.round(3000 - (item.turbidity * 0.75)) : undefined,
             humidity: item.humidity != null ? Math.round(item.humidity / 40) : undefined,
             battery: item.battery,
@@ -161,7 +161,12 @@ export function TelemetryProvider({ children }: { children: ReactNode }) {
           const nextStations = exists
             ? prevStations.map((station) =>
                 station.id === String(item.nodeId)
-                  ? { ...station, ...newStation }
+                  ? {
+                      ...station,
+                      ...Object.fromEntries(
+                        Object.entries(newStation).filter(([_, v]) => v !== undefined)
+                      )
+                    }
                   : station
               )
             : [...prevStations, newStation];
