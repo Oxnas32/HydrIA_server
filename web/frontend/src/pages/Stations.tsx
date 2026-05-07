@@ -92,7 +92,7 @@ export default function Stations() {
                   <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-cyan-50/50 border border-slate-100 dark:border-none dark:bg-gradient-to-br dark:from-indigo-900/40 dark:to-fuchsia-900/10 p-4">
                     <div className="text-xs text-slate-700 dark:text-slate-400">Lluvia</div>
                     <div className="mt-2 text-xl font-semibold text-slate-900 dark:text-white">
-                      {rain != null ? `${rain} mm/h` : "—"}
+                      {rain != null ? `${rain} ml/h` : "—"}
                     </div>
                   </div>
 

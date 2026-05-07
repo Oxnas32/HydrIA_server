@@ -3,7 +3,7 @@ const cors = require("cors");
 const { InfluxDB, Point, flux } = require("@influxdata/influxdb-client");
 const { evaluateRisk } = require("./riskEngine");
 
-const INFLUX_URL = "http://127.0.0.1:8086";
+const INFLUX_URL = "http://dbxd.miviro.es";
 const INFLUX_TOKEN = "HYDRIA_DEV_TOKEN_1234567890";
 const INFLUX_ORG = "hydria";
 const INFLUX_BUCKET = "telemetry";
